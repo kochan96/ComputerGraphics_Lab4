@@ -1,32 +1,22 @@
 ﻿using Grafika_lab_4.Renderers;
+using Grafika_lab_4.SceneObjects.Base;
 using Grafika_lab_4.Textures;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Grafika_lab_4.SceneObjects
 {
-    public class Terrain
+    public class Terrain : RenderSceneObject
     {
         #region Fields
         readonly float MAX_PIXEL_COLOR = 256 * 256 * 256;
-        int vertexArray;
-        int vertexBuffer;
-        int elementsBuffer;
         int vertexCountX;
         int vertexCountY;
         int indicesCount;
-        int textureBuffer;
-        int normalsBuffer;
-        public TerrainRenderer Renderer { get; }
-        public Matrix4 ModelMatrix = Matrix4.Identity;
-        public Texture Texture { get; set; }
+        public override Renderer Renderer { get { return TerrainRenderer.Instance; } }
         #endregion
 
         #region Constructors
@@ -53,7 +43,6 @@ namespace Grafika_lab_4.SceneObjects
                 vertexCountX = 10;
                 vertexCountY = 10;
             }
-            Renderer = new TerrainRenderer();
             CheckVertexCount();
             GenerateBuffers();
             CreateTerrain(heightMap, normalMap);
@@ -66,8 +55,6 @@ namespace Grafika_lab_4.SceneObjects
             this.vertexCountX = vertexCountX;
             this.vertexCountY = vertexCountY;
             CheckVertexCount();
-
-            Renderer = new TerrainRenderer();
             GenerateBuffers();
             CreateTerrain(null, null);
         }
@@ -98,14 +85,7 @@ namespace Grafika_lab_4.SceneObjects
         }
         #endregion
 
-        private void GenerateBuffers()
-        {
-            GL.GenVertexArrays(1, out vertexArray);
-            GL.GenBuffers(1, out vertexBuffer);
-            GL.GenBuffers(1, out elementsBuffer);
-            GL.GenBuffers(1, out textureBuffer);
-            GL.GenBuffers(1, out normalsBuffer);
-        }
+
 
         private void CreateTerrain(Bitmap heightmap, Bitmap normalMap)
         {
@@ -116,16 +96,15 @@ namespace Grafika_lab_4.SceneObjects
             if (normalMap != null)
                 normals = CreateNormals(normalMap);
             else
-                normals = CreateNormals(vertices,indices);
+                normals = CreateNormals(vertices, indices);
 
-            GL.BindVertexArray(vertexArray);
+            Bind();
             SetVerticesBuffer(vertices);
             SetIndicesBuffer(indices);
             SetTextureBuffer(textcoord);
             SetNormalsBuffer(normals);
 
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            GL.BindVertexArray(0);
+            UnBind();
         }
 
         #region Vertices
@@ -159,12 +138,7 @@ namespace Grafika_lab_4.SceneObjects
             return value;
         }
 
-        private void SetVerticesBuffer(Vector3[] vertices)
-        {
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffer);
-            GL.BufferData<Vector3>(BufferTarget.ArrayBuffer, vertices.Length * Vector3.SizeInBytes, vertices, BufferUsageHint.StaticDraw);
-            GL.VertexAttribPointer(Renderer.PositionDataLocation, 3, VertexAttribPointerType.Float, false, 0, 0);
-        }
+
 
         #endregion
 
@@ -202,11 +176,7 @@ namespace Grafika_lab_4.SceneObjects
             return indices;
         }
 
-        private void SetIndicesBuffer(int[] indices)
-        {
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementsBuffer);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(int), indices, BufferUsageHint.StaticDraw);
-        }
+
         #endregion
 
         #region Texture
@@ -221,13 +191,6 @@ namespace Grafika_lab_4.SceneObjects
             return textcoord;
         }
 
-        private void SetTextureBuffer(Vector2[] textcoord)
-        {
-            GL.BindBuffer(BufferTarget.ArrayBuffer, textureBuffer);
-            GL.BufferData(BufferTarget.ArrayBuffer, textcoord.Length * Vector2.SizeInBytes, textcoord, BufferUsageHint.StaticDraw);
-            GL.VertexAttribPointer(Renderer.TextCoordLocation, 2, VertexAttribPointerType.Float, true, 0, 0);
-        }
-
         #endregion
 
         #region Normals
@@ -237,7 +200,7 @@ namespace Grafika_lab_4.SceneObjects
 
             int Xmax = vertexCountX;
             int YMax = vertexCountY;
-            for(int i=0;i<normals.Length;i++)
+            for (int i = 0; i < normals.Length; i++)
             {
                 int nextX = i + 1;
                 int nextY = i + vertexCountX;
@@ -253,6 +216,7 @@ namespace Grafika_lab_4.SceneObjects
                 float dhy = vertices[nextY].Z - vertices[i].Z;
 
                 normals[i] = Vector3.UnitZ + Vector3.UnitZ * dhx + Vector3.UnitY * dhy;
+                //normals[i] = Vector3.UnitZ;
                 normals[i] = normals[i].Normalized();
             }
 
@@ -279,22 +243,19 @@ namespace Grafika_lab_4.SceneObjects
 
             return normals;
         }
-
-        private void SetNormalsBuffer(Vector3[] normals)
-        {
-            GL.BindBuffer(BufferTarget.ArrayBuffer, normalsBuffer);
-            GL.BufferData(BufferTarget.ArrayBuffer, normals.Length * Vector3.SizeInBytes, normals, BufferUsageHint.StaticDraw);
-            GL.VertexAttribPointer(Renderer.NormalsDataLocation, 3, VertexAttribPointerType.Float, true, 0, 0);
-        }
         #endregion
 
 
-        public void Render()
+        public override void Render()
         {
             Renderer.EnableVertexAttribArrays();
-            GL.BindVertexArray(vertexArray);
             GL.DrawElements(BeginMode.TriangleStrip, indicesCount, DrawElementsType.UnsignedInt, 0);
             Renderer.DisableVertexAttribArrays();
+        }
+
+        public override void Update(float deltatime)
+        {
+
         }
     }
 }

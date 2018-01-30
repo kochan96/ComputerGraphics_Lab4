@@ -51,6 +51,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Renderers\ModelRenderer.cs" />
+    <Compile Include="Renderers\Renderer.cs" />
+    <Compile Include="SceneObjects\Aircraft.cs" />
+    <Compile Include="SceneObjects\Base\RenderSceneObject.cs" />
     <Compile Include="SceneObjects\Cameras\Camera.cs" />
     <Compile Include="SceneObjects\Cameras\MovingCamera.cs" />
     <Compile Include="SceneObjects\Cameras\StaticCamera.cs" />
@@ -90,6 +94,15 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Resources\Aircraft\Aircraft.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Shaders\aircraft.frag">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Shaders\aircraft.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Shaders\terrain.frag">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

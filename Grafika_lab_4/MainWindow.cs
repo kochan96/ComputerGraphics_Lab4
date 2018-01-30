@@ -1,11 +1,14 @@
 ﻿using Grafika_lab_4.Lights;
+using Grafika_lab_4.Renderers;
 using Grafika_lab_4.SceneObjects;
+using Grafika_lab_4.SceneObjects.Base;
 using Grafika_lab_4.SceneObjects.Cameras;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Grafika_lab_4
@@ -17,13 +20,14 @@ namespace Grafika_lab_4
             InitializeComponent();
         }
         #region Fields
-        int frames;
+        DateTime lastMeasuredFPSTime;
         DateTime lastMeasuredTime;
-        Terrain terrain;
+        int frames;
         Matrix4 ProjectionMatrix;
-        List<Camera> cameras=new List<Camera>();
-        int activeCamera=0;
+        List<Camera> cameras = new List<Camera>();
+        int activeCamera = 0;
         List<Light> lights = new List<Light>();
+        List<RenderSceneObject> renderObjects = new List<RenderSceneObject>();
         readonly string TerrainTexture = "Resources/Terrain/TerrainTexture2.png";
         readonly string TerrainHeightMap = "Resources/Terrain/HeightMap.png";
         #endregion;
@@ -36,7 +40,7 @@ namespace Grafika_lab_4
 
         private void InitProgram()
         {
-            ProjectionMatrix =Matrix4.CreatePerspectiveFieldOfView(1.3f, glControl.Width / (float)glControl.Height, 1f, 1000f);
+            ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(1.3f, glControl.Width / (float)glControl.Height, 1f, 1000f);
             glControl.MakeCurrent();
             SetGLParameter();
             CreateObjects();
@@ -51,28 +55,47 @@ namespace Grafika_lab_4
 
         private void CreateObjects()
         {
-            terrain = new Terrain(TerrainHeightMap);
-            terrain.Texture = new Textures.Texture(TerrainTexture);
-            terrain.ModelMatrix = Matrix4.CreateScale(new Vector3(800f, 800,40f)) * Matrix4.CreateRotationX(-MathHelper.PiOver2);
-            MovingCamera moveCamera = new MovingCamera();
-            moveCamera.CameraPosition =new  Vector3(-2.2f, 45.8f, 168.39f);
-            moveCamera.MoveSpeed = 1.5f;
-            Camera staticCamera = new StaticCamera();
-            staticCamera.CameraPosition = new Vector3(-2.2f, 45.8f, 150.39f);
+            Terrain terrain = new Terrain(TerrainHeightMap)
+            {
+                Texture = new Textures.Texture(TerrainTexture)
+            };
+            terrain.Scale(new Vector3(800f, 800f, 40f));
+            terrain.RotateByX(-MathHelper.PiOver2);
+            Aircraft aircraft = new Aircraft();
+            aircraft.Scale(new Vector3(10f, 10f, 10f));
+
+            renderObjects.Add(terrain);
+           // renderObjects.Add(aircraft);
+            
+
+            MovingCamera moveCamera = new MovingCamera
+            {
+                CameraPosition = new Vector3(-2.2f, 45.8f, 168.39f),
+                MoveSpeed = 1.5f
+            };
+            Camera staticCamera = new StaticCamera
+            {
+                CameraPosition = new Vector3(-2.2f, 45.8f, 150.39f)
+            };
             cameras.Add(moveCamera);
             cameras.Add(staticCamera);
 
-            PointLight light = new PointLight();
-            light.Position = Vector3.UnitY;
+            PointLight light = new PointLight
+            {
+                Position = 200000f * Vector3.UnitY
+            };
             lights.Add(light);
         }
 
         private void SetTimer()
         {
-            Timer timer = new Timer();
-            timer.Interval = 15;
+            Timer timer = new Timer
+            {
+                Interval = 10
+            };
             timer.Tick += Timer_Tick;
             lastMeasuredTime = DateTime.Now;
+            lastMeasuredFPSTime = DateTime.Now;
             timer.Start();
         }
 
@@ -81,15 +104,24 @@ namespace Grafika_lab_4
         #region Render
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if (DateTime.Now.Subtract(lastMeasuredTime) >= TimeSpan.FromSeconds(1))
+            if (DateTime.Now.Subtract(lastMeasuredFPSTime) >= TimeSpan.FromSeconds(1))
             {
                 Text = $"FPS: {this.frames}";
                 this.frames = 0;
-                lastMeasuredTime = DateTime.Now;
+                lastMeasuredFPSTime = DateTime.Now;
             }
+
+
+            float deltaTime = (float)DateTime.Now.Subtract(lastMeasuredTime).TotalSeconds;
+            lastMeasuredTime = DateTime.Now;
 
             foreach (var cam in cameras)
                 cam.Update();
+
+            foreach (var obj in renderObjects)
+                obj.Update(deltaTime);
+
+            lights[0].Position = new Vector3(Matrix4.CreateRotationX(-0.2f * deltaTime) * new Vector4(lights[0].Position, 1.0f));
 
             glControl.Invalidate();
         }
@@ -97,15 +129,20 @@ namespace Grafika_lab_4
         private void glControl_Paint(object sender, PaintEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-            terrain.Renderer.Use();
-            terrain.Renderer.SetModelMatrix(terrain.ModelMatrix);
-            terrain.Renderer.SetViewMatrix(cameras[activeCamera].GetViewMatrix());
-            terrain.Renderer.SetProjectionMatrix(ProjectionMatrix);
-            terrain.Renderer.SetTexture(terrain.Texture);
-            terrain.Renderer.SetLightPosition(lights[0].Position);
-            terrain.Renderer.SetLightColor(lights[0].LightColor);
-            terrain.Render();
+            foreach (var obj in renderObjects)
+            {
+                obj.Renderer.Use();
+                obj.Bind();
+                obj.Renderer.SetModelMatrix(obj.ModelMatrix);
+                obj.Renderer.SetViewMatrix(cameras[activeCamera].GetViewMatrix());
+                obj.Renderer.SetProjectionMatrix(ProjectionMatrix);
+                if (obj.Texture != null)
+                    obj.Renderer.SetTexture(obj.Texture);
+                obj.Renderer.SetLightPosition(lights[0].Position);
+                obj.Renderer.SetLightColor(lights[0].LightColor);
+                obj.Render();
+                obj.UnBind();
+            }
 
             glControl.SwapBuffers();
             this.frames++;
@@ -114,7 +151,7 @@ namespace Grafika_lab_4
         private void glControl_Resize(object sender, EventArgs e)
         {
             GL.Viewport(glControl.Size);
-            ProjectionMatrix=Matrix4.CreatePerspectiveFieldOfView(1.3f, glControl.Width / (float)glControl.Height, 1f, 1000f);
+            ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(1.3f, glControl.Width / (float)glControl.Height, 1f, 1000f);
         }
         #endregion
 

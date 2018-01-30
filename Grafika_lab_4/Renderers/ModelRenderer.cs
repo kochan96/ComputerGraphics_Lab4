@@ -7,12 +7,11 @@ using System.IO;
 
 namespace Grafika_lab_4.Renderers
 {
-    public class TerrainRenderer : Renderer
+    public class ModelRenderer : Renderer
     {
-
         #region Shaders
-        protected override string VERTEX_SHADER { get { return "Shaders/terrain.vert"; } }
-        protected override string FRAGMENT_SHADER { get { return "Shaders/terrain.frag"; } }
+        protected override string VERTEX_SHADER { get { return "Shaders/aircraft.vert"; } }
+        protected override string FRAGMENT_SHADER { get { return "Shaders/aircraft.frag"; } }
         #endregion
 
         #region AtributeNames
@@ -31,11 +30,11 @@ namespace Grafika_lab_4.Renderers
         #endregion
 
         #region Singleton
-        private TerrainRenderer() { }
-        private static volatile TerrainRenderer instance;
+        private ModelRenderer() { }
+        private static volatile ModelRenderer instance;
         private static object syncRoot = new Object();
 
-        public static TerrainRenderer Instance
+        public static ModelRenderer Instance
         {
             get
             {
@@ -44,7 +43,7 @@ namespace Grafika_lab_4.Renderers
                     lock (syncRoot)
                     {
                         if (instance == null)
-                            instance = new TerrainRenderer();
+                            instance = new ModelRenderer();
                     }
                 }
                 return instance;
@@ -53,4 +52,6 @@ namespace Grafika_lab_4.Renderers
 
         #endregion
     }
+
 }
+
