@@ -15,6 +15,8 @@ namespace Grafika_lab_4.Renderers
     {
         #region Fields
 
+        
+
         #region Shaders
 
         protected abstract string VERTEX_SHADER { get; }
@@ -38,6 +40,7 @@ namespace Grafika_lab_4.Renderers
         protected abstract string LightPositionUniName { get; }
         protected abstract string LightColorUniName { get; }
 
+        protected abstract string SkyColorUniName { get; }
 
         #endregion
 
@@ -49,7 +52,7 @@ namespace Grafika_lab_4.Renderers
         int TextureSamplerLocation;
         int LightPositionLocation;
         int LightColorLocation;
-
+        int SkyColorLocation;
         #endregion
 
         #endregion
@@ -124,7 +127,7 @@ namespace Grafika_lab_4.Renderers
             NormalsDataLocation = GetAttrubuteLocation(NormalsAttribName);
         }
 
-        private int GetAttrubuteLocation(string AttributeName)
+        protected int GetAttrubuteLocation(string AttributeName)
         {
             int position = GL.GetAttribLocation(ProgramID, AttributeName);
             if (position == -1)
@@ -141,9 +144,10 @@ namespace Grafika_lab_4.Renderers
             TextureSamplerLocation = GetUniformLocation(TextureSamplerUniName);
             LightPositionLocation = GetUniformLocation(LightPositionUniName);
             LightColorLocation = GetUniformLocation(LightColorUniName);
+            SkyColorLocation = GetUniformLocation(SkyColorUniName);
         }
 
-        private int GetUniformLocation(string UniformName)
+        protected int GetUniformLocation(string UniformName)
         {
             int position = GL.GetUniformLocation(ProgramID, UniformName);
             if (position == -1)
@@ -161,19 +165,24 @@ namespace Grafika_lab_4.Renderers
             GL.UseProgram(ProgramID);
         }
 
-        public void SetModelMatrix(Matrix4 model)
+        public void Delete()
         {
-            GL.UniformMatrix4(ModelMatrixLocation, false, ref model);
+            GL.DeleteProgram(ProgramID);
         }
 
-        public void SetViewMatrix(Matrix4 view)
+        public void SetModelMatrix(Matrix4 model, bool transpose)
         {
-            GL.UniformMatrix4(ViewMatrixLocation, false, ref view);
+            GL.UniformMatrix4(ModelMatrixLocation, transpose, ref model);
         }
 
-        public void SetProjectionMatrix(Matrix4 projection)
+        public void SetViewMatrix(Matrix4 view, bool transpose)
         {
-            GL.UniformMatrix4(ProjectionMatrixLocation, false, ref projection);
+            GL.UniformMatrix4(ViewMatrixLocation, transpose, ref view);
+        }
+
+        public void SetProjectionMatrix(Matrix4 projection, bool transpose)
+        {
+            GL.UniformMatrix4(ProjectionMatrixLocation, transpose, ref projection);
         }
 
         public void SetTexture(Texture texture)
@@ -197,21 +206,19 @@ namespace Grafika_lab_4.Renderers
             GL.Uniform3(LightColorLocation, ref color);
         }
 
-        public void SetModelViewProjectionMatrix(Matrix4 model, Matrix4 view, Matrix4 projection)
+        public void SetSkyColor(Vector3 color)
         {
-            SetModelMatrix(model);
-            SetViewMatrix(view);
-            SetProjectionMatrix(projection);
+            GL.Uniform3(SkyColorLocation, color);
         }
 
-        public void EnableVertexAttribArrays()
+        public virtual void EnableVertexAttribArrays()
         {
             GL.EnableVertexAttribArray(PositionDataLocation);
             GL.EnableVertexAttribArray(TextCoordLocation);
             GL.EnableVertexAttribArray(NormalsDataLocation);
         }
 
-        public void DisableVertexAttribArrays()
+        public virtual void DisableVertexAttribArrays()
         {
             GL.DisableVertexAttribArray(PositionDataLocation);
             GL.DisableVertexAttribArray(TextCoordLocation);

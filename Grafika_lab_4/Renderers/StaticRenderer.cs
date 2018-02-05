@@ -1,17 +1,19 @@
-﻿using Grafika_lab_4.Textures;
-using OpenTK;
-using OpenTK.Graphics.OpenGL4;
+﻿using Grafika_lab_4.Configuration;
 using System;
-using System.Diagnostics;
-using System.IO;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Grafika_lab_4.Renderers
 {
-    public class ModelRenderer : Renderer
+    public  class StaticRenderer:Renderer
     {
         #region Shaders
-        protected override string VERTEX_SHADER { get { return "Shaders/aircraft.vert"; } }
-        protected override string FRAGMENT_SHADER { get { return "Shaders/aircraft.frag"; } }
+
+        protected override string VERTEX_SHADER { get { return Resources.StaticVertexShader; } }
+        protected override string FRAGMENT_SHADER { get { return Resources.StaticFragmentShader; } }
+
         #endregion
 
         #region AtributeNames
@@ -27,14 +29,18 @@ namespace Grafika_lab_4.Renderers
         protected override string TextureSamplerUniName { get { return "TextureSampler"; } }
         protected override string LightPositionUniName { get { return "LightPosition"; } }
         protected override string LightColorUniName { get { return "LightColor"; } }
+
+        protected override string SkyColorUniName { get { return "SkyColor"; } }
+
         #endregion
 
+
         #region Singleton
-        private ModelRenderer() { }
-        private static volatile ModelRenderer instance;
+        private StaticRenderer() { }
+        private static volatile StaticRenderer instance;
         private static object syncRoot = new Object();
 
-        public static ModelRenderer Instance
+        public static StaticRenderer Instance
         {
             get
             {
@@ -43,15 +49,16 @@ namespace Grafika_lab_4.Renderers
                     lock (syncRoot)
                     {
                         if (instance == null)
-                            instance = new ModelRenderer();
+                            instance = new StaticRenderer();
                     }
                 }
                 return instance;
             }
         }
 
+        
+
         #endregion
+
     }
-
 }
-

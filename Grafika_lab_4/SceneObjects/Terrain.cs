@@ -11,17 +11,25 @@ namespace Grafika_lab_4.SceneObjects
 {
     public class Terrain : RenderSceneObject
     {
+
         #region Fields
         readonly float MAX_PIXEL_COLOR = 256 * 256 * 256;
         int vertexCountX;
         int vertexCountY;
-        int indicesCount;
-        public override Renderer Renderer { get { return TerrainRenderer.Instance; } }
+        TerrainRenderer renderer = TerrainRenderer.Instance;
+        public override Renderer Renderer { get { return renderer; } }
+
+        /*protected override Vector3 DefaultForward { get { return Vector3.UnitY; } }
+        protected override Vector3 DefaultUp { get { return Vector3.UnitZ; } }
+        protected override Vector3 DefaultRight { get { return Vector3.UnitX; } }*/
+
+        private int indicesCount;
         #endregion
+
 
         #region Constructors
 
-        public Terrain(string HeightMap, string NormalMap = "")
+        public Terrain(string name,string HeightMap, string NormalMap = ""):base(name)
         {
             Bitmap heightMap = LoadBitmap(HeightMap);
             Bitmap normalMap = LoadBitmap(NormalMap);
@@ -48,9 +56,9 @@ namespace Grafika_lab_4.SceneObjects
             CreateTerrain(heightMap, normalMap);
         }
 
-        public Terrain(int vertexCount) : this(vertexCount, vertexCount) { }
+        public Terrain(string name,int vertexCount) : this(name,vertexCount, vertexCount) { }
 
-        public Terrain(int vertexCountX, int vertexCountY)
+        public Terrain(string name,int vertexCountX, int vertexCountY):base(name)
         {
             this.vertexCountX = vertexCountX;
             this.vertexCountY = vertexCountY;
@@ -94,7 +102,7 @@ namespace Grafika_lab_4.SceneObjects
             Vector2[] textcoord = CreateTextureCoordinates(vertices);
             Vector3[] normals;
             if (normalMap != null)
-                normals = CreateNormals(normalMap);
+                normals = CreateNormals(normalMap,vertices);
             else
                 normals = CreateNormals(vertices, indices);
 
@@ -202,20 +210,8 @@ namespace Grafika_lab_4.SceneObjects
             int YMax = vertexCountY;
             for (int i = 0; i < normals.Length; i++)
             {
-                int nextX = i + 1;
-                int nextY = i + vertexCountX;
-
-                if (nextX % vertexCountX == 0)
-                    nextX -= vertexCountX;
-
-                if (nextY >= vertexCountX * vertexCountY)
-                    nextY = 0;
-
-
-                float dhx = vertices[nextX].Z - vertices[i].Z;
-                float dhy = vertices[nextY].Z - vertices[i].Z;
-
-                normals[i] = Vector3.UnitZ + Vector3.UnitZ * dhx + Vector3.UnitY * dhy;
+                GetDisorder(vertices, i, out float dhx, out float dhy);
+                normals[i] = Vector3.UnitZ + Vector3.UnitX * dhx + Vector3.UnitY * dhy;
                 //normals[i] = Vector3.UnitZ;
                 normals[i] = normals[i].Normalized();
             }
@@ -223,7 +219,22 @@ namespace Grafika_lab_4.SceneObjects
             return normals;
         }
 
-        private Vector3[] CreateNormals(Bitmap normalMap)
+        private void GetDisorder(Vector3[] vertices,int index,out float dhx,out float dhy)
+        {
+            int nextX = index + 1;
+            int nextY = index + vertexCountX;
+
+            if (nextX % vertexCountX == 0)
+                nextX -= vertexCountX;
+
+            if (nextY >= vertexCountX * vertexCountY)
+                nextY = 0;
+
+            dhx = vertices[nextX].Z - vertices[index].Z;
+            dhy = vertices[nextY].Z - vertices[index].Z;
+        }
+
+        private Vector3[] CreateNormals(Bitmap normalMap,Vector3[] vertices)
         {
             Vector3[] normals = new Vector3[vertexCountX * vertexCountY];
             int index = 0;
@@ -232,11 +243,17 @@ namespace Grafika_lab_4.SceneObjects
                 for (int j = 0; j < vertexCountX; j++)
                 {
                     Color pixel = normalMap.GetPixel(j, i);
-                    float half = 255f / 2.0f;
-                    normals[index].X = (pixel.R - half) / half;
-                    normals[index].Y = (pixel.G - half) / half;
-                    normals[index].Z = (pixel.B - half) / half;
-                    index++;
+                    float half = 256f / 2.0f;
+                    Vector3 normal = new Vector3();
+
+                    normal.X = (pixel.R - half) / half;
+                    normal.Y = (pixel.G - half) / half;
+                    normal.Z = (pixel.B - half) / half;
+                    normal /= normal.Z;
+                    GetDisorder(vertices, index, out float dhx, out float dhy);
+                    normal = normal + new Vector3(1, 0, -normal.X) * dhx + new Vector3(0, 1, -normal.Y) * dhy;
+                    normal.Normalize();
+                    normals[index++] = normal;
                 }
             }
 
@@ -245,6 +262,15 @@ namespace Grafika_lab_4.SceneObjects
         }
         #endregion
 
+
+        protected override void GenerateBuffers()
+        {
+            GL.GenVertexArrays(1, out vertexArray);
+            GL.GenBuffers(1, out vertexBuffer);
+            GL.GenBuffers(1, out elementsBuffer);
+            GL.GenBuffers(1, out textureBuffer);
+            GL.GenBuffers(1, out normalsBuffer);
+        }
 
         public override void Render()
         {
@@ -256,6 +282,15 @@ namespace Grafika_lab_4.SceneObjects
         public override void Update(float deltatime)
         {
 
+        }
+
+        public override void Dispose()
+        {
+            GL.DeleteVertexArray(vertexArray);
+            GL.DeleteBuffer(vertexBuffer);
+            GL.DeleteBuffer(elementsBuffer);
+            GL.DeleteBuffer(textureBuffer);
+            GL.DeleteBuffer(normalsBuffer);
         }
     }
 }

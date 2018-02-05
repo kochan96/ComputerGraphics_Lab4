@@ -1,4 +1,5 @@
-﻿using Grafika_lab_4.Textures;
+﻿using Grafika_lab_4.Configuration;
+using Grafika_lab_4.Textures;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
@@ -9,10 +10,10 @@ namespace Grafika_lab_4.Renderers
 {
     public class TerrainRenderer : Renderer
     {
-
+        
         #region Shaders
-        protected override string VERTEX_SHADER { get { return "Shaders/terrain.vert"; } }
-        protected override string FRAGMENT_SHADER { get { return "Shaders/terrain.frag"; } }
+        protected override string VERTEX_SHADER { get { return Resources.TerrainVertexShader; } }
+        protected override string FRAGMENT_SHADER { get { return Resources.TerrainFragmentShader; } }
         #endregion
 
         #region AtributeNames
@@ -28,7 +29,12 @@ namespace Grafika_lab_4.Renderers
         protected override string TextureSamplerUniName { get { return "TextureSampler"; } }
         protected override string LightPositionUniName { get { return "LightPosition"; } }
         protected override string LightColorUniName { get { return "LightColor"; } }
+
+        protected override string SkyColorUniName { get { return "SkyColor"; } }
+
         #endregion
+
+
 
         #region Singleton
         private TerrainRenderer() { }

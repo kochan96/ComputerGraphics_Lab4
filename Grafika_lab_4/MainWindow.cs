@@ -1,4 +1,5 @@
-﻿using Grafika_lab_4.Lights;
+﻿using Grafika_lab_4.Configuration;
+using Grafika_lab_4.Lights;
 using Grafika_lab_4.Renderers;
 using Grafika_lab_4.SceneObjects;
 using Grafika_lab_4.SceneObjects.Base;
@@ -10,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using static System.Windows.Forms.ComboBox;
 
 namespace Grafika_lab_4
 {
@@ -19,17 +21,18 @@ namespace Grafika_lab_4
         {
             InitializeComponent();
         }
+
+
         #region Fields
         DateTime lastMeasuredFPSTime;
         DateTime lastMeasuredTime;
         int frames;
         Matrix4 ProjectionMatrix;
         List<Camera> cameras = new List<Camera>();
-        int activeCamera = 0;
+        int activeCameraIndex = 0;
         List<Light> lights = new List<Light>();
         List<RenderSceneObject> renderObjects = new List<RenderSceneObject>();
-        readonly string TerrainTexture = "Resources/Terrain/TerrainTexture2.png";
-        readonly string TerrainHeightMap = "Resources/Terrain/HeightMap.png";
+        Vector3 SkyColor = new Vector3(0.5f, 0.5f, 0.5f);
         #endregion;
 
         #region InitProgram
@@ -48,41 +51,67 @@ namespace Grafika_lab_4
         }
         private void SetGLParameter()
         {
-            GL.ClearColor(Color4.CornflowerBlue);
+            GL.ClearColor(SkyColor.X, SkyColor.Y, SkyColor.Z, 1.0f);
             GL.Viewport(glControl.Size);
             GL.Enable(EnableCap.DepthTest);
         }
 
         private void CreateObjects()
         {
-            Terrain terrain = new Terrain(TerrainHeightMap)
+            Terrain terrain = new Terrain("Terrain", Resources.RiverMountainHeightMap)
             {
-                Texture = new Textures.Texture(TerrainTexture)
+                Texture = new Textures.Texture(Resources.RockTexture)
             };
-            terrain.Scale(new Vector3(800f, 800f, 40f));
-            terrain.RotateByX(-MathHelper.PiOver2);
-            Aircraft aircraft = new Aircraft();
-            aircraft.Scale(new Vector3(10f, 10f, 10f));
+
+            terrain.ScaleObject(new Vector3(100f, 100f, 5f));
+            terrain.Pitch(-MathHelper.PiOver2);
+            Aircraft aircraft = new Aircraft("Aircraft1");
+
+            aircraft.Speed = 1f;
+            aircraft.RotateByY(MathHelper.PiOver2);
+            aircraft.RotateByZ(MathHelper.PiOver2);
+            aircraft.ScaleObject(50f);
+            aircraft.Translate(Vector3.UnitX);
+  
+
+            Aircraft aircraft2 = new Aircraft("Aircraft2");
+            aircraft2.Speed = 1f;
+            aircraft2.ScaleObject(50f);
+            aircraft2.RotateByY(MathHelper.PiOver2);
+            aircraft2.RotateByZ(MathHelper.PiOver2);
 
             renderObjects.Add(terrain);
-           // renderObjects.Add(aircraft);
-            
+            renderObjects.Add(aircraft);
+            renderObjects.Add(aircraft2);
 
-            MovingCamera moveCamera = new MovingCamera
+            MovingCamera moveCamera = new MovingCamera("MovingCamera")
             {
                 CameraPosition = new Vector3(-2.2f, 45.8f, 168.39f),
                 MoveSpeed = 1.5f
             };
-            Camera staticCamera = new StaticCamera
+            Camera staticCamera = new StaticCamera("StaticCamera")
             {
                 CameraPosition = new Vector3(-2.2f, 45.8f, 150.39f)
             };
+            Camera staticFollowCamera = new StaticCamera("StaticFollowCamera", aircraft2)
+            {
+                CameraPosition = new Vector3(0f, 10f, 10f)
+            };
+            Camera staticFollowCamera2 = new StaticCamera("StaticFollowCamera", aircraft)
+            {
+                CameraPosition = new Vector3(0f, 10f, 10f)
+            };
+
             cameras.Add(moveCamera);
             cameras.Add(staticCamera);
+            cameras.Add(staticFollowCamera);
+            cameras.Add(staticFollowCamera2);
 
-            PointLight light = new PointLight
+            cameras[activeCameraIndex].IsActive = true;
+
+            Light light = new Light("MainLight")
             {
-                Position = 200000f * Vector3.UnitY
+                Position = 1000f * Vector3.UnitY
             };
             lights.Add(light);
         }
@@ -114,15 +143,14 @@ namespace Grafika_lab_4
 
             float deltaTime = (float)DateTime.Now.Subtract(lastMeasuredTime).TotalSeconds;
             lastMeasuredTime = DateTime.Now;
+            foreach (var obj in renderObjects)
+                obj.Update(deltaTime);
 
             foreach (var cam in cameras)
                 cam.Update();
 
-            foreach (var obj in renderObjects)
-                obj.Update(deltaTime);
 
-            lights[0].Position = new Vector3(Matrix4.CreateRotationX(-0.2f * deltaTime) * new Vector4(lights[0].Position, 1.0f));
-
+            //lights[0].Position = new Vector3(Matrix4.CreateRotationZ(0.2f * deltaTime) * new Vector4(lights[0].Position, 1.0f));
             glControl.Invalidate();
         }
 
@@ -133,9 +161,10 @@ namespace Grafika_lab_4
             {
                 obj.Renderer.Use();
                 obj.Bind();
-                obj.Renderer.SetModelMatrix(obj.ModelMatrix);
-                obj.Renderer.SetViewMatrix(cameras[activeCamera].GetViewMatrix());
-                obj.Renderer.SetProjectionMatrix(ProjectionMatrix);
+                obj.Renderer.SetSkyColor(SkyColor);
+                obj.Renderer.SetModelMatrix(obj.ModelMatrix, false);
+                obj.Renderer.SetViewMatrix(cameras[activeCameraIndex].GetViewMatrix(), false);
+                obj.Renderer.SetProjectionMatrix(ProjectionMatrix, false);
                 if (obj.Texture != null)
                     obj.Renderer.SetTexture(obj.Texture);
                 obj.Renderer.SetLightPosition(lights[0].Position);
@@ -148,25 +177,48 @@ namespace Grafika_lab_4
             this.frames++;
         }
 
+        private void glControl_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.C)
+            {
+                cameras[activeCameraIndex].IsActive = false;
+                activeCameraIndex = (activeCameraIndex + 1) % cameras.Count;
+                cameras[activeCameraIndex].IsActive = true;
+            }
+        }
+
         private void glControl_Resize(object sender, EventArgs e)
         {
             GL.Viewport(glControl.Size);
             ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(1.3f, glControl.Width / (float)glControl.Height, 1f, 1000f);
+
         }
         #endregion
 
         #region Menu
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            CleanUp();
             Application.Exit();
         }
+        private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            CleanUp();
+        }
+
+        private void CleanUp()
+        {
+            foreach (var obj in renderObjects)
+            {
+                obj.Renderer.Delete();
+                obj.Dispose();
+            }
+        }
+
+
+
+
 
         #endregion
-
-        private void glControl_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.C)
-                activeCamera = (activeCamera + 1) % cameras.Count;
-        }
     }
 }
