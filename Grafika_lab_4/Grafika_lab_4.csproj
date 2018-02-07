@@ -56,17 +56,20 @@
     <Compile Include="Loader\Mesh.cs" />
     <Compile Include="Loader\RawObjLoader.cs" />
     <Compile Include="Loader\RawObjModel.cs" />
+    <Compile Include="Loader\TextureData.cs" />
+    <Compile Include="Loader\TextureLoader.cs" />
     <Compile Include="Loader\Vertex.cs" />
     <Compile Include="Renderers\AircraftRenderer.cs" />
     <Compile Include="Renderers\Renderer.cs" />
+    <Compile Include="Renderers\SkyBoxRenderer.cs" />
     <Compile Include="Renderers\StaticRenderer.cs" />
     <Compile Include="Resources.cs" />
     <Compile Include="SceneObjects\Aircraft.cs" />
     <Compile Include="SceneObjects\Base\RenderSceneObject.cs" />
+    <Compile Include="SceneObjects\Cameras\BehindCamera.cs" />
     <Compile Include="SceneObjects\Cameras\Camera.cs" />
     <Compile Include="SceneObjects\Cameras\MovingCamera.cs" />
     <Compile Include="SceneObjects\Cameras\StaticCamera.cs" />
-    <Compile Include="SceneObjects\Cube.cs" />
     <Compile Include="SceneObjects\Lights\Light.cs" />
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
@@ -77,8 +80,10 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderers\TerrainRenderer.cs" />
+    <Compile Include="SceneObjects\SkyBox.cs" />
+    <Compile Include="SceneObjects\Sphere.cs" />
     <Compile Include="SceneObjects\Terrain.cs" />
-    <Compile Include="Texture.cs" />
+    <Compile Include="Loader\Texture.cs" />
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </EmbeddedResource>
@@ -114,6 +119,12 @@
     <None Include="Resources\Shaders\aircraft.vert">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Resources\Shaders\skybox.frag">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Shaders\skybox.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Resources\Shaders\static.frag">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -136,10 +147,34 @@
     <Content Include="Resources\HeightMaps\RiverMountains.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Resources\Textures\SkyBoxBack.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Textures\SkyBoxBottom.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Textures\SkyBoxFront.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Textures\SkyBoxLeft.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Textures\SkyBoxRight.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\Textures\RockTexture.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Textures\GreenTexture.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Textures\SphereTexture.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Textures\TestTexture.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Textures\SkyBoxTop.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

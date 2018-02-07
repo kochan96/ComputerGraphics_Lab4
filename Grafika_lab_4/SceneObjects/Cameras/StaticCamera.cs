@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Grafika_lab_4.SceneObjects.Base;
+﻿using Grafika_lab_4.SceneObjects.Base;
 using OpenTK;
 
 namespace Grafika_lab_4.SceneObjects.Cameras

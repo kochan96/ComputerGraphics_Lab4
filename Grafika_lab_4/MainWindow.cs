@@ -1,17 +1,14 @@
 ﻿using Grafika_lab_4.Configuration;
 using Grafika_lab_4.Lights;
-using Grafika_lab_4.Renderers;
+using Grafika_lab_4.Loader;
 using Grafika_lab_4.SceneObjects;
 using Grafika_lab_4.SceneObjects.Base;
 using Grafika_lab_4.SceneObjects.Cameras;
 using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
-using static System.Windows.Forms.ComboBox;
 
 namespace Grafika_lab_4
 {
@@ -58,31 +55,62 @@ namespace Grafika_lab_4
 
         private void CreateObjects()
         {
+            Texture texture1 = TextureLoader.LoadTexture2D(Resources.GreenTexture);
+            Texture texture2 = TextureLoader.LoadTexture2D(Resources.RockTexture);
+            Texture texture3 = TextureLoader.LoadTexture2D(Resources.TestTexture);
+            Texture skyBoxTexture1 = TextureLoader.LoadCubeMap(Resources.SkyCubeMapTextures);
+            Texture sphereTexture1 = TextureLoader.LoadTexture2D(Resources.SphereTexture);
+            ///Terain
             Terrain terrain = new Terrain("Terrain", Resources.RiverMountainHeightMap)
             {
-                Texture = new Textures.Texture(Resources.RockTexture)
+                Texture = texture2,
             };
-
-            terrain.ScaleObject(new Vector3(100f, 100f, 5f));
+            float TerrainWidth = 100f;
+            float TerrainLength = 100f;
+            terrain.ScaleObject(new Vector3(TerrainWidth, TerrainLength, 5f));
             terrain.Pitch(-MathHelper.PiOver2);
-            Aircraft aircraft = new Aircraft("Aircraft1");
 
+            ///FirstAircraft
+            Aircraft aircraft = new Aircraft("Aircraft1");
             aircraft.Speed = 1f;
+            aircraft.ScaleObject(50f);
             aircraft.RotateByY(MathHelper.PiOver2);
             aircraft.RotateByZ(MathHelper.PiOver2);
-            aircraft.ScaleObject(50f);
             aircraft.Translate(Vector3.UnitX);
-  
+            aircraft.Semimajor = 20f;
+            aircraft.Semiminor = 20f;
 
+            ///SecondAircraft
             Aircraft aircraft2 = new Aircraft("Aircraft2");
             aircraft2.Speed = 1f;
             aircraft2.ScaleObject(50f);
             aircraft2.RotateByY(MathHelper.PiOver2);
             aircraft2.RotateByZ(MathHelper.PiOver2);
+            aircraft2.Semimajor = 30f;
+            aircraft2.Semiminor = 20f;
 
+            Sphere sphere = new Sphere("spher", 1000);
+            sphere.ScaleObject(5);
+            Sphere sphere2 = new Sphere("sphere2", 1000);
+            sphere2.ScaleObject(5);
+            sphere2.Texture = sphereTexture1;
+            sphere2.Translate(sphere2.Forward * 10f);
+
+            SkyBox skybox = new SkyBox("SkyBox");
+            skybox.Texture = skyBoxTexture1;
+            skybox.ScaleObject(new Vector3(TerrainWidth, TerrainLength, TerrainLength));
+
+
+
+            ///RenderObjects
             renderObjects.Add(terrain);
             renderObjects.Add(aircraft);
             renderObjects.Add(aircraft2);
+            renderObjects.Add(sphere);
+            renderObjects.Add(sphere2);
+
+            ///render last
+            renderObjects.Add(skybox);
 
             MovingCamera moveCamera = new MovingCamera("MovingCamera")
             {
@@ -97,22 +125,32 @@ namespace Grafika_lab_4
             {
                 CameraPosition = new Vector3(0f, 10f, 10f)
             };
-            Camera staticFollowCamera2 = new StaticCamera("StaticFollowCamera", aircraft)
+            Camera staticFollowCamera2 = new StaticCamera("StaticFollowCamera", sphere)
             {
                 CameraPosition = new Vector3(0f, 10f, 10f)
             };
+            BehindCamera behindCamera = new BehindCamera("behindCamera", aircraft)
+            {
+                Dist = 13f,
+                Angle = MathHelper.PiOver6
+            };
 
+            //Cameras
             cameras.Add(moveCamera);
             cameras.Add(staticCamera);
             cameras.Add(staticFollowCamera);
             cameras.Add(staticFollowCamera2);
+            cameras.Add(behindCamera);
 
             cameras[activeCameraIndex].IsActive = true;
 
+            //PointLights
             Light light = new Light("MainLight")
             {
                 Position = 1000f * Vector3.UnitY
             };
+
+            //Lights
             lights.Add(light);
         }
 
@@ -165,8 +203,7 @@ namespace Grafika_lab_4
                 obj.Renderer.SetModelMatrix(obj.ModelMatrix, false);
                 obj.Renderer.SetViewMatrix(cameras[activeCameraIndex].GetViewMatrix(), false);
                 obj.Renderer.SetProjectionMatrix(ProjectionMatrix, false);
-                if (obj.Texture != null)
-                    obj.Renderer.SetTexture(obj.Texture);
+                obj.Renderer.SetTexture(obj.Texture);
                 obj.Renderer.SetLightPosition(lights[0].Position);
                 obj.Renderer.SetLightColor(lights[0].LightColor);
                 obj.Render();

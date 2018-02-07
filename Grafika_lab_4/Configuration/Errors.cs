@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Grafika_lab_4.Configuration
+﻿namespace Grafika_lab_4.Configuration
 {
 
     public enum Language
@@ -19,6 +13,7 @@ namespace Grafika_lab_4.Configuration
         ParseModelError,
         ParseMaterialError,
         LoadedEmptyModelError,
+        LoadTextureError,
     }
 
     public static class Errors
@@ -51,6 +46,8 @@ namespace Grafika_lab_4.Configuration
                     return "Could not parse materials: ";
                 case ErrorType.LoadedEmptyModelError:
                     return "Loaded model is empty: ";
+                case ErrorType.LoadTextureError:
+                    return "Could not load texture: ";
                 default:
                     return "Error: ";
             }

@@ -1,6 +1,5 @@
 ﻿using Grafika_lab_4.Renderers;
 using Grafika_lab_4.SceneObjects.Base;
-using Grafika_lab_4.Textures;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
@@ -22,6 +21,7 @@ namespace Grafika_lab_4.SceneObjects
         /*protected override Vector3 DefaultForward { get { return Vector3.UnitY; } }
         protected override Vector3 DefaultUp { get { return Vector3.UnitZ; } }
         protected override Vector3 DefaultRight { get { return Vector3.UnitX; } }*/
+
 
         private int indicesCount;
         #endregion

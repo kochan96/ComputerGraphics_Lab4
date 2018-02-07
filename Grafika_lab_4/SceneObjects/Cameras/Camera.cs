@@ -1,9 +1,4 @@
 ﻿using OpenTK;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grafika_lab_4.SceneObjects.Cameras
 {
@@ -21,7 +16,7 @@ namespace Grafika_lab_4.SceneObjects.Cameras
         public abstract Vector3 CameraUp { get; set; }
         public  Matrix4 GetViewMatrix()
         {
-            Vector3 zaxis = (CameraPosition - CameraTarget).Normalized();    // The "forward" vector.
+            /*Vector3 zaxis = (CameraPosition - CameraTarget).Normalized();    // The "forward" vector.
             Vector3 xaxis = Vector3.Cross(CameraUp, zaxis).Normalized();// The "right" vector.
             Vector3 yaxis = Vector3.Cross(zaxis, xaxis);     // The "up" vector.
 
@@ -32,7 +27,9 @@ namespace Grafika_lab_4.SceneObjects.Cameras
                 xaxis.Z, yaxis.Z, zaxis.Z, 0,
                 -Vector3.Dot(xaxis, CameraPosition), -Vector3.Dot(yaxis, CameraPosition), -Vector3.Dot(zaxis, CameraPosition), 1);
 
-            return viewMatrix;
+            return viewMatrix;*/
+
+            return Matrix4.LookAt(CameraPosition, CameraTarget, CameraUp);
         }
 
         public abstract void Update();

@@ -3,14 +3,12 @@
 in vec3 pass_Normal;
 in vec3 toLightVector;
 in vec3 toCameraVector;
-in float visibility;
 
 uniform vec3 LightColor;
 uniform vec3 AmbientColor;
 uniform vec3 DiffuseColor;
 uniform vec3 SpecularColor;
 uniform float SpecularExponent;
-uniform vec3 SkyColor;
 
 out vec4 outputColor;
 
@@ -44,5 +42,4 @@ void main()
 
 	vec3 finalColor=ambient_strength*ambient+diffuse_strength*diffuse+specular_strength*finalSpecular;
 	outputColor=vec4(finalColor,1.0f);
-	outputColor=mix(vec4(SkyColor,1.0),outputColor,visibility);
 }

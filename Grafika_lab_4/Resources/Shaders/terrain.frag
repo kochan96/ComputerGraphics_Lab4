@@ -3,7 +3,7 @@
 in vec2 pass_textcoord; 
 in vec3 pass_Normal;
 in vec3 toLightVector;
-in float visibility;
+in vec3 toCameraVector;
 
 
 uniform sampler2D TextureSampler;
@@ -17,6 +17,7 @@ void main()
 
 	vec3 unitNormal=normalize(pass_Normal);
 	vec3 unitLightVector=normalize(toLightVector);
+	vec3 unitCameraVector=normalize(toCameraVector);
 
     vec3 color = vec3(texture(TextureSampler, pass_textcoord));
 
@@ -28,9 +29,18 @@ void main()
 	float brightness=max(nDot1,0.0f);
 	vec3 diffuse=brightness*LightColor*color;
 
+	//specular
+	vec3 lightDirection=-unitLightVector;
+	vec3 reflectedLightDirection=reflect(lightDirection,unitNormal);
+	float specularFactor=dot(reflectedLightDirection,unitCameraVector);
+	specularFactor=max(specularFactor,0.0f);
+	float dampedFactor=pow(specularFactor,20);
+	vec3 finalSpecular=dampedFactor*LightColor*color;
+
    float ambient_strength=0.2f;
-   float diffuse_strength=0.8f;
-   vec3 final_color = ambient_strength*ambient+diffuse_strength*diffuse;
+   float diffuse_strength=0.6f;
+   float specular_strength=0.2f;
+
+   vec3 final_color = ambient_strength*ambient+diffuse_strength*diffuse+specular_strength*finalSpecular;
    outputColor = vec4(final_color, 1.0);
-   outputColor=mix(vec4(SkyColor,1.0),outputColor,visibility);
 }

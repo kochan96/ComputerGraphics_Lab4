@@ -1,13 +1,10 @@
 ﻿using Grafika_lab_4.Configuration;
+using OpenTK.Graphics.OpenGL4;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grafika_lab_4.Renderers
 {
-    public  class StaticRenderer:Renderer
+    public class StaticRenderer : Renderer
     {
         #region Shaders
 
@@ -20,6 +17,7 @@ namespace Grafika_lab_4.Renderers
         protected override string PositonAttrName { get { return "Position"; } }
         protected override string TextCoordAttribName { get { return "TextCoord"; } }
         protected override string NormalsAttribName { get { return "Normal"; } }
+        protected virtual string ColorAttribName { get { return "Color"; } }
         #endregion
 
         #region UniformNames
@@ -32,7 +30,52 @@ namespace Grafika_lab_4.Renderers
 
         protected override string SkyColorUniName { get { return "SkyColor"; } }
 
+        protected virtual string HasTextureUniName { get { return "HasTexture"; } }
+
         #endregion
+
+        #region UniformLocation
+        int HasTextureLocation;
+        #endregion
+
+        #region AttributesLocation
+        public int ColorDataLocation { get; private set; }
+        #endregion
+
+        #region SetAttributesLocation
+        protected override void SetAttributesLocations()
+        {
+            base.SetAttributesLocations();
+            ColorDataLocation = GetAttrubuteLocation(ColorAttribName);
+        }
+        #endregion
+
+        #region SetUniformsLocation
+        protected override void SetUniformsLocations()
+        {
+            base.SetUniformsLocations();
+            HasTextureLocation = GetUniformLocation(HasTextureUniName);
+        }
+
+        #endregion
+
+        public override void EnableVertexAttribArrays()
+        {
+            base.EnableVertexAttribArrays();
+            GL.EnableVertexAttribArray(ColorDataLocation);
+        }
+
+        public override void DisableVertexAttribArrays()
+        {
+            base.DisableVertexAttribArrays();
+            GL.DisableVertexAttribArray(ColorDataLocation);
+        }
+
+
+        public void SetHasTexture(bool hasTexture)
+        {
+            GL.Uniform1(HasTextureLocation, hasTexture ? 1 : 0);
+        }
 
 
         #region Singleton
@@ -56,7 +99,7 @@ namespace Grafika_lab_4.Renderers
             }
         }
 
-        
+
 
         #endregion
 

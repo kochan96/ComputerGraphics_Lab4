@@ -7,9 +7,6 @@ using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Grafika_lab_4.SceneObjects
@@ -40,6 +37,7 @@ namespace Grafika_lab_4.SceneObjects
             }
             else
                 MessageBox.Show(Errors.GetErrorMessage(ErrorType.FileMissingError) + modelFile);
+
         }
         public Aircraft(string name) : this(name, Vector3.Zero) { }
 
@@ -99,26 +97,36 @@ namespace Grafika_lab_4.SceneObjects
                 Renderer.DisableVertexAttribArrays();
             }
         }
+        /// <summary>
+        /// X-Axis elipsse
+        /// </summary>
+        public float Semiminor { get; set; }
+        /// <summary>
+        /// Z-axis of ellipse
+        /// </summary>
+        public float Semimajor { get; set; }
 
-        float Semiminor = 70.0f;
-        float Semimajor = 10.0f;
-
-        Vector2 CenterOfElipse=Vector2.Zero;
+        public Vector2 CenterOfElipse = Vector2.Zero;
         float alpha = 0;
+        float Rolled = 0;
 
         public override void Update(float deltatime)
         {
-
-            alpha += Speed * deltatime;
-            float X = CenterOfElipse.X-(Semiminor * (float)Math.Cos(alpha));
-            float Y = CenterOfElipse.Y-(Semimajor * (float)Math.Sin(alpha));
-            Vector3 position = new Vector3(X, 0, Y);
-            Translate(position-Position);
+            float factor = Speed * deltatime;
+            alpha += factor;
+            float X = CenterOfElipse.X - (Semiminor * (float)Math.Cos(alpha));
+            float Y = CenterOfElipse.Y - (Semimajor * (float)Math.Sin(alpha));
             Vector3 old = Position;
-            Translate(-old);
-            Yaw(-Speed * deltatime);
-            Translate(old);
+            Vector3 position = new Vector3(X, old.Y, Y);
 
+            Translate(-old);
+            Vector3 oldForward = Forward;
+            Yaw(-Speed * deltatime);
+            Vector3 newForward = Forward;
+            float angle = (float)Math.Acos(Vector3.Dot(oldForward, newForward));
+
+            
+            Translate(position);
 
         }
 

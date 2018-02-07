@@ -1,10 +1,7 @@
 ﻿using Grafika_lab_4.Configuration;
-using Grafika_lab_4.Textures;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
-using System.Diagnostics;
-using System.IO;
 
 namespace Grafika_lab_4.Renderers
 {

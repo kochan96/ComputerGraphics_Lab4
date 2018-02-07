@@ -1,13 +1,9 @@
-﻿using Grafika_lab_4.Textures;
+﻿using Grafika_lab_4.Loader;
 using OpenTK;
 using OpenTK.Graphics.ES20;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grafika_lab_4.Renderers
 {
@@ -93,7 +89,7 @@ namespace Grafika_lab_4.Renderers
             GL.CompileShader(shader);
             string info = GL.GetShaderInfoLog(shader);
             if (!string.IsNullOrEmpty(info))
-                Debug.WriteLine($"Shader: {type} had info log: {info}");
+                Debug.WriteLine($"Shader {ShaderFilePath}: {type} had info log: {info}");
 
             return shader;
         }
@@ -189,10 +185,21 @@ namespace Grafika_lab_4.Renderers
         {
             if (texture != null)
             {
-                GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.Texture2D, texture.TextureId);
+                if (texture.Dimensions == 2)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture0);
+                    GL.BindTexture(TextureTarget.Texture2D, texture.TextureId);
 
-                GL.Uniform1(TextureSamplerLocation, 0);
+                    GL.Uniform1(TextureSamplerLocation, 0);
+                }
+                else if(texture.Dimensions==3)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture0);
+                    GL.BindTexture(TextureTarget.Texture3D, texture.TextureId);
+
+                    GL.Uniform1(TextureSamplerLocation, 0);
+                }
+
             }
         }
 

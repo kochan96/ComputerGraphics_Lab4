@@ -11,10 +11,8 @@ uniform vec3 LightPosition;
 out vec2 pass_textcoord;
 out vec3 pass_Normal;
 out vec3 toLightVector;
-out float visibility;
+out vec3 toCameraVector;
 
-const float density=0.008;
-const float gradient=1.5;
 
 void main()
 {
@@ -25,9 +23,8 @@ void main()
 	pass_textcoord=TextCoord;
 	pass_Normal = (ModelMatrix*vec4(Normal,0.0)).xyz;
 	toLightVector=LightPosition-worldPosition.xyz;
+	toCameraVector=(inverse(ViewMatrix)*vec4(0.0,0.0,0.0,1.0)).xyz-worldPosition.xyz;
 
-	float distance=length(positionRelativeToCam.xyz);
-	visibility=exp(-pow((distance*density),gradient));
-	visibility=clamp(visibility,0.0,1.0);
+
 	
 };

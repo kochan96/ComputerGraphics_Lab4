@@ -1,5 +1,5 @@
-﻿using Grafika_lab_4.Renderers;
-using Grafika_lab_4.Textures;
+﻿using Grafika_lab_4.Loader;
+using Grafika_lab_4.Renderers;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
@@ -49,7 +49,9 @@ namespace Grafika_lab_4.SceneObjects.Base
         {
             get
             {
-                return Rotation* (-Vector3.UnitZ);
+                Vector3 rotated=Rotation* (-Vector3.UnitZ);
+                rotated.Normalize();
+                return rotated;
             }
         }
 
@@ -113,6 +115,13 @@ namespace Grafika_lab_4.SceneObjects.Base
             GL.BindBuffer(BufferTarget.ArrayBuffer, textureBuffer);
             GL.BufferData(BufferTarget.ArrayBuffer, textcoord.Length * Vector2.SizeInBytes, textcoord, BufferUsageHint.StaticDraw);
             GL.VertexAttribPointer(Renderer.TextCoordLocation, 2, VertexAttribPointerType.Float, true, 0, 0);
+        }
+
+        protected void SetTextureBuffer(Vector3[] textcoord)
+        {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, textureBuffer);
+            GL.BufferData(BufferTarget.ArrayBuffer, textcoord.Length * Vector3.SizeInBytes, textcoord, BufferUsageHint.StaticDraw);
+            GL.VertexAttribPointer(Renderer.TextCoordLocation, 3, VertexAttribPointerType.Float, true, 0, 0);
         }
 
         protected void SetNormalsBuffer(Vector3[] normals)
