@@ -10,8 +10,8 @@
         public readonly static string AircraftFragmentShader = ShadersFolder + "aircraft.frag";
         public readonly static string TerrainVertexShader = ShadersFolder + "terrain.vert";
         public readonly static string TerrainFragmentShader = ShadersFolder + "terrain.frag";
-        public readonly static string StaticVertexShader = ShadersFolder + "static.vert";
-        public readonly static string StaticFragmentShader = ShadersFolder + "static.frag";
+        public readonly static string StaticVertexShader = ShadersFolder + "sphere.vert";
+        public readonly static string StaticFragmentShader = ShadersFolder + "sphere.frag";
         public readonly static string SkyBoxVertexShader = ShadersFolder + "skybox.vert";
         public readonly static string SkyBoxFragmentShader = ShadersFolder + "skybox.frag";
         #endregion

@@ -7,6 +7,8 @@ namespace Grafika_lab_4.Renderers
 {
     public class AircraftRenderer : Renderer
     {
+        public override int MAX_LIGHTS { get { return 4; } }
+
         #region Shaders
         protected override string VERTEX_SHADER { get { return Resources.AircraftVertexShader; } }
         protected override string FRAGMENT_SHADER { get { return Resources.AircraftFragmentShader; } }
@@ -30,7 +32,6 @@ namespace Grafika_lab_4.Renderers
         protected virtual string DiffuseColorUniName { get { return "DiffuseColor"; } }
         protected virtual string SpecularColorUniName { get { return "SpecularColor"; } }
         protected virtual string SpecularExponenUniName { get { return "SpecularExponent"; } }
-        protected override string SkyColorUniName { get { return "SkyColor"; } }
         #endregion
 
 

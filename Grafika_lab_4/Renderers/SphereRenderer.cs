@@ -4,8 +4,9 @@ using System;
 
 namespace Grafika_lab_4.Renderers
 {
-    public class StaticRenderer : Renderer
+    public class SphereRenderer : Renderer
     {
+        public override int MAX_LIGHTS { get { return 4; } }
         #region Shaders
 
         protected override string VERTEX_SHADER { get { return Resources.StaticVertexShader; } }
@@ -27,8 +28,6 @@ namespace Grafika_lab_4.Renderers
         protected override string TextureSamplerUniName { get { return "TextureSampler"; } }
         protected override string LightPositionUniName { get { return "LightPosition"; } }
         protected override string LightColorUniName { get { return "LightColor"; } }
-
-        protected override string SkyColorUniName { get { return "SkyColor"; } }
 
         protected virtual string HasTextureUniName { get { return "HasTexture"; } }
 
@@ -79,11 +78,11 @@ namespace Grafika_lab_4.Renderers
 
 
         #region Singleton
-        private StaticRenderer() { }
-        private static volatile StaticRenderer instance;
+        private SphereRenderer() { }
+        private static volatile SphereRenderer instance;
         private static object syncRoot = new Object();
 
-        public static StaticRenderer Instance
+        public static SphereRenderer Instance
         {
             get
             {
@@ -92,7 +91,7 @@ namespace Grafika_lab_4.Renderers
                     lock (syncRoot)
                     {
                         if (instance == null)
-                            instance = new StaticRenderer();
+                            instance = new SphereRenderer();
                     }
                 }
                 return instance;

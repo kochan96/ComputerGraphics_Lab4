@@ -5,7 +5,7 @@ namespace Grafika_lab_4.Renderers
 {
     public class TerrainRenderer : Renderer
     {
-        
+        public override int MAX_LIGHTS { get { return 4; } }
         #region Shaders
         protected override string VERTEX_SHADER { get { return Resources.TerrainVertexShader; } }
         protected override string FRAGMENT_SHADER { get { return Resources.TerrainFragmentShader; } }
@@ -24,8 +24,6 @@ namespace Grafika_lab_4.Renderers
         protected override string TextureSamplerUniName { get { return "TextureSampler"; } }
         protected override string LightPositionUniName { get { return "LightPosition"; } }
         protected override string LightColorUniName { get { return "LightColor"; } }
-
-        protected override string SkyColorUniName { get { return "SkyColor"; } }
 
         #endregion
 

@@ -89,12 +89,13 @@ namespace Grafika_lab_4
             aircraft2.Semimajor = 30f;
             aircraft2.Semiminor = 20f;
 
-            Sphere sphere = new Sphere("spher", 1000);
+            Sphere sphere = new Sphere("spher", 100);
             sphere.ScaleObject(5);
-            Sphere sphere2 = new Sphere("sphere2", 1000);
+
+            Sphere sphere2 = new Sphere("sphere2", 100);
             sphere2.ScaleObject(5);
             sphere2.Texture = sphereTexture1;
-            sphere2.Translate(sphere2.Forward * 10f);
+            sphere2.Translate(sphere2.Up * 15f);
 
             SkyBox skybox = new SkyBox("SkyBox");
             skybox.Texture = skyBoxTexture1;
@@ -187,10 +188,23 @@ namespace Grafika_lab_4
             foreach (var cam in cameras)
                 cam.Update();
 
-
-            //lights[0].Position = new Vector3(Matrix4.CreateRotationZ(0.2f * deltaTime) * new Vector4(lights[0].Position, 1.0f));
+            foreach (var light in lights)
+            {
+                Matrix4 moveMatrix=Matrix4.Identity;
+                if (lightRotationY >= MathHelper.TwoPi)
+                {
+                    lightRotationY = 0;
+                    moveMatrix = Matrix4.CreateRotationZ(MathHelper.PiOver2 * deltaTime);
+                }
+                float angle = MathHelper.PiOver2 * deltaTime;
+                moveMatrix *=Matrix4.CreateRotationY(angle);
+                lightRotationY += angle;
+                moveMatrix.Transpose();
+                light.Position = new Vector3(moveMatrix * new Vector4(lights[0].Position, 1.0f));
+            }
             glControl.Invalidate();
         }
+        float lightRotationY;
 
         private void glControl_Paint(object sender, PaintEventArgs e)
         {
@@ -199,13 +213,11 @@ namespace Grafika_lab_4
             {
                 obj.Renderer.Use();
                 obj.Bind();
-                obj.Renderer.SetSkyColor(SkyColor);
                 obj.Renderer.SetModelMatrix(obj.ModelMatrix, false);
                 obj.Renderer.SetViewMatrix(cameras[activeCameraIndex].GetViewMatrix(), false);
                 obj.Renderer.SetProjectionMatrix(ProjectionMatrix, false);
                 obj.Renderer.SetTexture(obj.Texture);
-                obj.Renderer.SetLightPosition(lights[0].Position);
-                obj.Renderer.SetLightColor(lights[0].LightColor);
+                obj.Renderer.SetLights(lights);
                 obj.Render();
                 obj.UnBind();
             }

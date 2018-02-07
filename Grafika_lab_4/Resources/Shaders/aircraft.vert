@@ -18,7 +18,7 @@ void main()
 	vec4 positionRelativeToCam=ViewMatrix*worldPosition;
 	gl_Position=ProjectionMatrix*positionRelativeToCam;
 
-	pass_Normal = mat3(ModelMatrix)*Normal;
+	pass_Normal = (ModelMatrix*vec4(Normal,0.0)).xyz;
 	toLightVector=LightPosition-vec3(worldPosition);
 	toCameraVector=(inverse(ViewMatrix)*vec4(0.0,0.0,0.0,1.0)).xyz-worldPosition.xyz;
 };

@@ -4,6 +4,7 @@ using Grafika_lab_4.SceneObjects.Base;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -26,7 +27,7 @@ namespace Grafika_lab_4.SceneObjects
         {
             Vector3[] vertices = CreateVertices();
             int[] indices = CreateIndices();
-            Vector3[] normals = CreateNormals(vertices,indices);
+            Vector3[] normals = CreateNormals(vertices);
             Vector3[] colors = CreateColors();
             Vector2[] textureCoord = CreateTextureCoordinates(vertices);
             Bind();
@@ -38,20 +39,17 @@ namespace Grafika_lab_4.SceneObjects
             UnBind();
         }
 
-        public float Map(float value, float from1, float to1, float from2, float to2)
-        {
-            return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
-        }
+        
 
         private Vector3[] CreateVertices()
         {
             Vector3[] vertices = new Vector3[(Total+1) * (Total+1)];
             for (int i = 0; i < Total+1; i++)
             {
-                float lon = Map(i, 0, Total, -MathHelper.Pi, MathHelper.Pi);
+                float lon = Helper.MapValue(i, 0, Total, -MathHelper.Pi, MathHelper.Pi);
                 for (int j = 0; j < Total+1; j++)
                 {
-                    float lat = Map(j, 0, Total, -MathHelper.PiOver2, MathHelper.PiOver2);
+                    float lat = Helper.MapValue(j, 0, Total, -MathHelper.PiOver2, MathHelper.PiOver2);
                     float x = (float)(Math.Sin(lon) * Math.Cos(lat));
                     float y = (float)(Math.Sin(lon) * Math.Sin(lat));
                     float z = (float)Math.Cos(lon);
@@ -94,37 +92,18 @@ namespace Grafika_lab_4.SceneObjects
 
 
 
-        private Vector3[] CreateNormals(Vector3[] vertices,int[] indices)
+        private Vector3[] CreateNormals(Vector3[] vertices)
         {
-            Vector3[] normals=new Vector3[vertices.Length];
-            for (int i = 0; i < indices.Length-2; i += 3)
-            {
-                Vector3 v1 = vertices[indices[i]];
-                Vector3 v2 = vertices[indices[i + 1]];
-                Vector3 v3 = vertices[indices[i + 2]];
-
-                // The normal is the cross product of two sides of the triangle
-                normals[indices[i]] += Vector3.Cross(v2 - v1, v3 - v1);
-                normals[indices[i + 1]] += Vector3.Cross(v2 - v1, v3 - v1);
-                normals[indices[i + 2]] += Vector3.Cross(v2 - v1, v3 - v1);
-            }
-
-            for (int i = 0; i < normals.Length; i++)
-            {
-                normals[i] = normals[i].Normalized();
-            }
-
-            return normals;
+            return vertices.Select(v => v.Normalized()).ToArray();
         }
 
         Random rnd = new Random();
         private Vector3[] CreateColors()
         {
-            return Enumerable.Repeat(Vector3.Zero,(Total+1)*(Total+1))
-                .Select(x => new Vector3((float)rnd.NextDouble(), (float)rnd.NextDouble(), (float)rnd.NextDouble())).ToArray();
+            return Enumerable.Repeat(Vector3.One,(Total+1)*(Total+1)).ToArray();
         }
 
-        StaticRenderer renderer = StaticRenderer.Instance;
+        SphereRenderer renderer = SphereRenderer.Instance;
         public override Renderer Renderer { get { return renderer; } }
 
         protected override void GenerateBuffers()
@@ -162,10 +141,11 @@ namespace Grafika_lab_4.SceneObjects
             renderer.DisableVertexAttribArrays();
         }
 
+        
         public override void Update(float deltatime)
         {
-            Roll(5f * deltatime);
-            Pitch(5f * deltatime);
+            
+
         }
 
 

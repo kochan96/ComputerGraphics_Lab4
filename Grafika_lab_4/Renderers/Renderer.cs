@@ -1,7 +1,9 @@
-﻿using Grafika_lab_4.Loader;
+﻿using Grafika_lab_4.Lights;
+using Grafika_lab_4.Loader;
 using OpenTK;
 using OpenTK.Graphics.ES20;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -11,7 +13,7 @@ namespace Grafika_lab_4.Renderers
     {
         #region Fields
 
-        
+        public abstract int MAX_LIGHTS { get; }
 
         #region Shaders
 
@@ -36,8 +38,6 @@ namespace Grafika_lab_4.Renderers
         protected abstract string LightPositionUniName { get; }
         protected abstract string LightColorUniName { get; }
 
-        protected abstract string SkyColorUniName { get; }
-
         #endregion
 
         #region UniformLocations
@@ -46,9 +46,8 @@ namespace Grafika_lab_4.Renderers
         int ViewMatrixLocation;
         int ProjectionMatrixLocation;
         int TextureSamplerLocation;
-        int LightPositionLocation;
-        int LightColorLocation;
-        int SkyColorLocation;
+        int[] LightPositionLocation;
+        int[] LightColorLocation;
         #endregion
 
         #endregion
@@ -138,9 +137,13 @@ namespace Grafika_lab_4.Renderers
             ViewMatrixLocation = GetUniformLocation(ViewMatrixUniName);
             ProjectionMatrixLocation = GetUniformLocation(ProjMatrixUniName);
             TextureSamplerLocation = GetUniformLocation(TextureSamplerUniName);
-            LightPositionLocation = GetUniformLocation(LightPositionUniName);
-            LightColorLocation = GetUniformLocation(LightColorUniName);
-            SkyColorLocation = GetUniformLocation(SkyColorUniName);
+            LightPositionLocation = new int[MAX_LIGHTS];
+            LightColorLocation = new int[MAX_LIGHTS];
+            for (int i = 0; i < MAX_LIGHTS; i++)
+            {
+                LightPositionLocation[i] = GetUniformLocation(LightPositionUniName+$"[{i}]");
+                LightColorLocation[i] = GetUniformLocation(LightColorUniName+$"[{i}]");
+            }
         }
 
         protected int GetUniformLocation(string UniformName)
@@ -192,7 +195,7 @@ namespace Grafika_lab_4.Renderers
 
                     GL.Uniform1(TextureSamplerLocation, 0);
                 }
-                else if(texture.Dimensions==3)
+                else if (texture.Dimensions == 3)
                 {
                     GL.ActiveTexture(TextureUnit.Texture0);
                     GL.BindTexture(TextureTarget.Texture3D, texture.TextureId);
@@ -203,19 +206,26 @@ namespace Grafika_lab_4.Renderers
             }
         }
 
-        public void SetLightPosition(Vector3 position)
-        {
-            GL.Uniform3(LightPositionLocation, ref position);
-        }
 
-        public void SetLightColor(Vector3 color)
+        public void SetLights(List<Light> lights)
         {
-            GL.Uniform3(LightColorLocation, ref color);
+            for(int i=0;i<MAX_LIGHTS ;i++)
+            {
+                if (i < lights.Count)
+                {
+                    SetVector(lights[i].Position, LightPositionLocation[i]);
+                    SetVector(lights[i].LightColor, LightColorLocation[i]);
+                }
+                else
+                {
+                    SetVector(Vector3.Zero, LightPositionLocation[i]);
+                    SetVector(Vector3.Zero, LightColorLocation[i]);
+                }
+            }
         }
-
-        public void SetSkyColor(Vector3 color)
+        private void SetVector(Vector3 vector,int location)
         {
-            GL.Uniform3(SkyColorLocation, color);
+            GL.Uniform3(location, ref vector);
         }
 
         public virtual void EnableVertexAttribArrays()

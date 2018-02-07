@@ -9,6 +9,7 @@ namespace Grafika_lab_4.Renderers
 {
     public class SkyBoxRenderer : Renderer
     {
+        public override int MAX_LIGHTS { get { return 4; } }
         #region Shaders
         protected override string VERTEX_SHADER { get { return Resources.SkyBoxVertexShader; } }
         protected override string FRAGMENT_SHADER { get { return Resources.SkyBoxFragmentShader; } }
@@ -29,7 +30,6 @@ namespace Grafika_lab_4.Renderers
         protected override string TextureSamplerUniName { get { return "CubeMap"; } }
         protected override string LightPositionUniName { get { return "LightPosition"; } }
         protected override string LightColorUniName { get { return " LightColor"; } }
-        protected override string SkyColorUniName { get { return "SkyColor"; } }
         #endregion
 
 
