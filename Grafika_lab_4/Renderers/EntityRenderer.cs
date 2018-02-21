@@ -5,9 +5,10 @@ using System;
 
 namespace Grafika_lab_4.Renderers
 {
-    public class AircraftRenderer : Renderer
+    public class EntityRenderer : Renderer
     {
-        public override int MAX_LIGHTS { get { return 4; } }
+        public override int MAX_LIGHTS { get { return 5; } }
+
 
         #region Shaders
         protected override string VERTEX_SHADER { get { return Resources.AircraftVertexShader; } }
@@ -25,13 +26,13 @@ namespace Grafika_lab_4.Renderers
         protected override string ViewMatrixUniName { get { return "ViewMatrix"; } }
         protected override string ProjMatrixUniName { get { return "ProjectionMatrix"; } }
         protected override string TextureSamplerUniName { get { return "TextureSampler"; } }
-        protected override string LightPositionUniName { get { return "LightPosition"; } }
-        protected override string LightColorUniName { get { return "LightColor"; } }
 
         protected virtual string AmbientColorUniName { get { return "AmbientColor"; } }
         protected virtual string DiffuseColorUniName { get { return "DiffuseColor"; } }
         protected virtual string SpecularColorUniName { get { return "SpecularColor"; } }
         protected virtual string SpecularExponenUniName { get { return "SpecularExponent"; } }
+
+        protected virtual string HasTextureUniName { get { return "HasTexture"; } }
         #endregion
 
 
@@ -40,6 +41,7 @@ namespace Grafika_lab_4.Renderers
         int DiffuseColorLocation;
         int SpecularColorLocation;
         int SpecularExponentLocation;
+        int HasTextureLocation;
         #endregion
 
 
@@ -52,6 +54,7 @@ namespace Grafika_lab_4.Renderers
             DiffuseColorLocation = GetUniformLocation(DiffuseColorUniName);
             SpecularColorLocation = GetUniformLocation(SpecularColorUniName);
             SpecularExponentLocation = GetUniformLocation(SpecularExponenUniName);
+            HasTextureLocation = GetUniformLocation(HasTextureUniName);
         }
         #endregion
 
@@ -77,14 +80,19 @@ namespace Grafika_lab_4.Renderers
             GL.Uniform1(SpecularExponentLocation, specularExponent);
         }
 
+        public void SetHasTexture(bool hasTexture)
+        {
+            GL.Uniform1(HasTextureLocation, hasTexture ? 1 : 0);
+        }
+
         #endregion
 
         #region Singleton
-        private AircraftRenderer() { }
-        private static volatile AircraftRenderer instance;
+        private EntityRenderer() { }
+        private static volatile EntityRenderer instance;
         private static object syncRoot = new Object();
 
-        public static AircraftRenderer Instance
+        public static EntityRenderer Instance
         {
             get
             {
@@ -93,12 +101,14 @@ namespace Grafika_lab_4.Renderers
                     lock (syncRoot)
                     {
                         if (instance == null)
-                            instance = new AircraftRenderer();
+                            instance = new EntityRenderer();
                     }
                 }
                 return instance;
             }
         }
+
+        
 
         #endregion
     }

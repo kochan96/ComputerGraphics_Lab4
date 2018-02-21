@@ -2,18 +2,18 @@
 
 namespace Grafika_lab_4.Loader
 {
-    public struct Material
+    public class Material
     {
         // Material Name
         public string Name;
         // Ambient 
-        public Vector3 Ka;
+        public Vector3 Ka=Vector3.One;
         // Diffuse 
-        public Vector3 Kd;
+        public Vector3 Kd = Vector3.One;
         // Specular 
-        public Vector3 Ks;
+        public Vector3 Ks = Vector3.One;
         //Emissive
-        public Vector3 Ke;
+        public Vector3 Ke = Vector3.One;
         // Specular Exponent
         public float Ns;
         // Optical Density

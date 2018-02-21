@@ -1,4 +1,5 @@
 ﻿using Grafika_lab_4.Configuration;
+using Grafika_lab_4.Lights;
 using Grafika_lab_4.Loader;
 using Grafika_lab_4.Renderers;
 using Grafika_lab_4.SceneObjects.Base;
@@ -6,6 +7,7 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 
@@ -15,7 +17,7 @@ namespace Grafika_lab_4.SceneObjects
     {
 
         #region Fields
-        AircraftRenderer renderer = AircraftRenderer.Instance;
+        EntityRenderer renderer = EntityRenderer.Instance;
         public override Renderer Renderer { get { return renderer; } }
 
         public RawObjModel RawModel;
@@ -25,6 +27,28 @@ namespace Grafika_lab_4.SceneObjects
         protected override Vector3 DefaultRight { get { return -Vector3.UnitY; } }*/
 
         public float Speed { get; set; }
+        public float HumanControlSpeed { get; set; }
+
+        bool humanControl;
+        public bool HumanControl
+        {
+            get
+            {
+                return humanControl;
+            }
+            set
+            {
+                humanControl = value;
+                if (humanControl == false)
+                    Reset();
+                else
+                    EllipseY = Position.Y;
+
+            }
+        }
+
+        protected Light[] light=new Light[2];
+        public Light[] Light { get { return light; } }
 
         #endregion
 
@@ -37,6 +61,32 @@ namespace Grafika_lab_4.SceneObjects
             }
             else
                 MessageBox.Show(Errors.GetErrorMessage(ErrorType.FileMissingError) + modelFile);
+
+            light[0] = new Light(Name + " rightLight")
+            {
+                AmbientIntensity = 0.0f,
+                DiffuseIntensity = 0.5f,
+                SpecularIntensity = 0.3f,
+                Color = Vector3.One,
+                Direction = Forward,
+                Position = Position,
+                ConeAngle = 15f,
+                Attenuation = Vector3.UnitX,
+                LightType = LightTypes.SpotLight
+            };
+
+            light[1] = new Light(Name + " leftLight")
+            {
+                AmbientIntensity = 0.0f,
+                DiffuseIntensity = 0.5f,
+                SpecularIntensity = 0.3f,
+                Color = Vector3.One,
+                Direction = Forward,
+                Position = Position,
+                ConeAngle = 15f,
+                Attenuation = Vector3.UnitX,
+                LightType = LightTypes.SpotLight
+            };
 
         }
         public Aircraft(string name) : this(name, Vector3.Zero) { }
@@ -85,6 +135,7 @@ namespace Grafika_lab_4.SceneObjects
             {
                 int offset = 0;
                 Renderer.EnableVertexAttribArrays();
+                renderer.SetHasTexture(Texture != null);
                 foreach (Mesh mesh in RawModel.Meshes)
                 {
                     renderer.SetAmbientColor(mesh.MeshMaterial.Ka);
@@ -106,28 +157,146 @@ namespace Grafika_lab_4.SceneObjects
         /// </summary>
         public float Semimajor { get; set; }
 
-        public Vector2 CenterOfElipse = Vector2.Zero;
-        float alpha = 0;
-        float Rolled = 0;
+        
 
         public override void Update(float deltatime)
         {
+           
+            Vector3 position = HumanControl ? UpdateHuman(deltatime) : Ellipse(deltatime);
+            HandleLights(position);
+        }
+
+        private void Reset()
+        {
+            ResetRotation();
+            alpha = 0;
+            rolled = 0.0f;
+            up = 0.0f;
+
+        }
+
+        float EllipseY;
+        public Vector2 CenterOfElipse = Vector2.Zero;
+        float alpha = 0;
+        private Vector3 Ellipse(float deltatime)
+        {
+            var keyboard = OpenTK.Input.Keyboard.GetState();
+            if (keyboard.IsKeyDown(OpenTK.Input.Key.W))
+                Speed += accelerate;
+            if (keyboard.IsKeyDown(OpenTK.Input.Key.S))
+            {
+                Speed -= accelerate;
+                Speed = Speed < 0.0f ? 0.0f : Speed;
+            }
+
             float factor = Speed * deltatime;
             alpha += factor;
             float X = CenterOfElipse.X - (Semiminor * (float)Math.Cos(alpha));
             float Y = CenterOfElipse.Y - (Semimajor * (float)Math.Sin(alpha));
             Vector3 old = Position;
-            Vector3 position = new Vector3(X, old.Y, Y);
+            Vector3 position = new Vector3(X, EllipseY, Y);
 
             Translate(-old);
-            Vector3 oldForward = Forward;
             Yaw(-Speed * deltatime);
-            Vector3 newForward = Forward;
-            float angle = (float)Math.Acos(Vector3.Dot(oldForward, newForward));
-
-            
             Translate(position);
+            return position;
+        }
 
+        float offset;
+        float offsetChange = 0.01f;
+        float maxOffset = 0.35f;
+        bool lightsOn = true;
+        protected void HandleLights(Vector3 position)
+        {
+            var state = OpenTK.Input.Keyboard.GetState();
+            if (offset<= maxOffset && state.IsKeyDown(OpenTK.Input.Key.R))
+            {
+                offset += offsetChange;
+            }
+            if (offset >= -maxOffset && state.IsKeyDown(OpenTK.Input.Key.T))
+            {
+                offset -= offsetChange;
+            }
+            if (state.IsKeyDown(OpenTK.Input.Key.F))
+            {
+                if (lightsOn)
+                {
+                    light[0].Color = Vector3.Zero;
+                    light[1].Color = Vector3.Zero;
+                }
+                else
+                {
+                    light[0].Color = Vector3.One;
+                    light[1].Color = Vector3.One;
+                }
+                lightsOn = !lightsOn;
+            }
+
+            light[0].Position = position+ Right * 2f;
+            light[0].Direction = (Forward + offset * Right).Normalized();
+
+            light[1].Position = position- Right * 2f;
+            light[1].Direction = (Forward + offset * Right).Normalized();
+        }
+
+        float accelerateHuman = 0.1f;
+        float accelerate = 0.006f;
+        float rolled = 0.0f;
+        float up = 0.0f;
+        float rotationSpeed = 1.0f;
+        float rotateLeftRight = 0.02f;
+        private Vector3 UpdateHuman(float deltatime)
+        {
+            float angle = deltatime * rotationSpeed;
+
+            Vector3 oldPosition = Position;
+            Translate(-oldPosition);
+            var keyboard = OpenTK.Input.Keyboard.GetState();
+            if (keyboard.IsKeyDown(OpenTK.Input.Key.W))
+                HumanControlSpeed += accelerateHuman;
+            if (keyboard.IsKeyDown(OpenTK.Input.Key.S))
+            {
+                HumanControlSpeed -= accelerateHuman;
+                HumanControlSpeed = HumanControlSpeed < 0.0f ? 0.0f : HumanControlSpeed;
+            }
+            if (keyboard.IsKeyDown(OpenTK.Input.Key.A))
+            {
+                if (rolled >= -MathHelper.PiOver4)
+                {
+                    RotateAndChange(-angle, Forward);
+                    rolled -= angle;
+                }
+            }
+            if (keyboard.IsKeyDown(OpenTK.Input.Key.D))
+            {
+                if (rolled <= MathHelper.PiOver4)
+                {
+                    RotateAndChange(angle, Forward);
+                    rolled += angle;
+                }
+            }
+            if (keyboard.IsKeyDown(OpenTK.Input.Key.E))
+            {
+                if (up <= MathHelper.PiOver4)
+                {
+                    RotateAndChange(angle, Right);
+                    up += angle;
+                }
+            }
+            if (keyboard.IsKeyDown(OpenTK.Input.Key.Q))
+            {
+                if (up >= -MathHelper.PiOver4)
+                {
+                    RotateAndChange(-angle, Right);
+                    up -= angle;
+                }
+            }
+
+            float rotateY = Helper.MapValue(rolled, -MathHelper.PiOver4, MathHelper.PiOver4, -rotateLeftRight, rotateLeftRight);
+            RotateAndChange(-rotateY, Vector3.UnitY);
+            Vector3 newPosition = oldPosition + Forward * HumanControlSpeed * deltatime;
+            Translate(newPosition);
+            return newPosition;
         }
 
         public override void Dispose()

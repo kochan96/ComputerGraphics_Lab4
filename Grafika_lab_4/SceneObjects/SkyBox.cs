@@ -9,10 +9,10 @@ namespace Grafika_lab_4.SceneObjects
     public class SkyBox : RenderSceneObject
     {
         int vertexCount=36;
-        float Size = 105.0f;
-
-        public SkyBox(string name) : base(name)
+        float Size;
+        public SkyBox(string name,float Size=105) : base(name)
         {
+            this.Size = Size;
             CreateSkyBox();
         }
 

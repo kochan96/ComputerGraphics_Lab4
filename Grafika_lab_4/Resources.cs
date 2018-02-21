@@ -6,8 +6,8 @@
         #region Shaders
         public readonly static string ShadersFolder = ResourcesFolder + "Shaders/";
 
-        public readonly static string AircraftVertexShader = ShadersFolder + "aircraft.vert";
-        public readonly static string AircraftFragmentShader = ShadersFolder + "aircraft.frag";
+        public readonly static string AircraftVertexShader = ShadersFolder + "entity.vert";
+        public readonly static string AircraftFragmentShader = ShadersFolder + "entity.frag";
         public readonly static string TerrainVertexShader = ShadersFolder + "terrain.vert";
         public readonly static string TerrainFragmentShader = ShadersFolder + "terrain.frag";
         public readonly static string StaticVertexShader = ShadersFolder + "sphere.vert";
@@ -20,6 +20,7 @@
         public readonly static string HeightMapsFolder = ResourcesFolder + "HeightMaps/";
 
         public readonly static string RiverMountainHeightMap = HeightMapsFolder + "RiverMountains.png";
+        public readonly static string MountainsHeightMap = HeightMapsFolder + "Mountains.png";
 
         #endregion
 
@@ -39,6 +40,7 @@
             TexturesFolder+"SkyBoxFront.png",
         };
 
+        public readonly static string TreeTexture = TexturesFolder + "Tree.png";
         public static readonly string SphereTexture = TexturesFolder + "SphereTexture.png";
         #endregion
 
@@ -48,6 +50,7 @@
 
         public readonly static string AircraftModel = ModelsFolder + "Aircraft.obj";
 
+        public readonly static string TreeModel = ModelsFolder + "Tree.obj";
         #endregion
 
         #region Materials

@@ -35,29 +35,32 @@ namespace Grafika_lab_4.Renderers
         protected abstract string ViewMatrixUniName { get; }
         protected abstract string ProjMatrixUniName { get; }
         protected abstract string TextureSamplerUniName { get; }
-        protected abstract string LightPositionUniName { get; }
-        protected abstract string LightColorUniName { get; }
+        protected  string LightsUniName { get { return "Lights"; }  }
+
+        protected string LightningMode { get { return "PhongLightning"; } }
 
         #endregion
 
         #region UniformLocations
 
-        int ModelMatrixLocation;
-        int ViewMatrixLocation;
-        int ProjectionMatrixLocation;
-        int TextureSamplerLocation;
-        int[] LightPositionLocation;
-        int[] LightColorLocation;
+        protected int ModelMatrixLocation;
+        protected int ViewMatrixLocation;
+        protected int ProjectionMatrixLocation;
+        protected int TextureSamplerLocation;
+        protected LightLocation[] LightsLocation;
+        protected int LightnigModelLocation;
         #endregion
+
+
 
         #endregion
 
         #region Properties
         public int ProgramID { get; }
-        public int PositionDataLocation { get; private set; }
-        public int TextCoordLocation { get; private set; }
+        public int PositionDataLocation { get; protected set; }
+        public int TextCoordLocation { get; protected set; }
 
-        public int NormalsDataLocation { get; private set; }
+        public int NormalsDataLocation { get; protected set; }
 
         #endregion
 
@@ -68,7 +71,9 @@ namespace Grafika_lab_4.Renderers
             int vertexShader = CreateShader(VERTEX_SHADER, ShaderType.VertexShader);
             int fragmentShader = CreateShader(FRAGMENT_SHADER, ShaderType.FragmentShader);
             ProgramID = LinkProgram(vertexShader, fragmentShader);
+            LightsLocation = new LightLocation[MAX_LIGHTS];
             SetLocations();
+
         }
 
         #endregion
@@ -137,12 +142,19 @@ namespace Grafika_lab_4.Renderers
             ViewMatrixLocation = GetUniformLocation(ViewMatrixUniName);
             ProjectionMatrixLocation = GetUniformLocation(ProjMatrixUniName);
             TextureSamplerLocation = GetUniformLocation(TextureSamplerUniName);
-            LightPositionLocation = new int[MAX_LIGHTS];
-            LightColorLocation = new int[MAX_LIGHTS];
+            LightnigModelLocation = GetUniformLocation(LightningMode);
+            
             for (int i = 0; i < MAX_LIGHTS; i++)
             {
-                LightPositionLocation[i] = GetUniformLocation(LightPositionUniName+$"[{i}]");
-                LightColorLocation[i] = GetUniformLocation(LightColorUniName+$"[{i}]");
+                LightsLocation[i].PositionLocation = GetUniformLocation(LightsUniName + $"[{i}].Position");
+                LightsLocation[i].ColorLocation = GetUniformLocation(LightsUniName + $"[{i}].Color");
+                LightsLocation[i].DirectionLocation = GetUniformLocation(LightsUniName + $"[{i}].Direction");
+                LightsLocation[i].ConeAngleLocation = GetUniformLocation(LightsUniName + $"[{i}].ConeAngle");
+                LightsLocation[i].TypeLocation = GetUniformLocation(LightsUniName + $"[{i}].LightType");
+                LightsLocation[i].AmbientIntensityLocation = GetUniformLocation(LightsUniName + $"[{i}].AmbientIntensity");
+                LightsLocation[i].DiffuseIntensityLocation = GetUniformLocation(LightsUniName + $"[{i}].DiffuseIntensity");
+                LightsLocation[i].SpecularIntensityLocation = GetUniformLocation(LightsUniName + $"[{i}].SpecularIntensity");
+                LightsLocation[i].AttenuationLocation = GetUniformLocation(LightsUniName + $"[{i}].Attenuation");
             }
         }
 
@@ -206,6 +218,10 @@ namespace Grafika_lab_4.Renderers
             }
         }
 
+        public void SetLightiningModel(bool model)
+        {
+            GL.Uniform1(LightnigModelLocation, model?1:0);
+        }
 
         public void SetLights(List<Light> lights)
         {
@@ -213,20 +229,31 @@ namespace Grafika_lab_4.Renderers
             {
                 if (i < lights.Count)
                 {
-                    SetVector(lights[i].Position, LightPositionLocation[i]);
-                    SetVector(lights[i].LightColor, LightColorLocation[i]);
+                    GL.Uniform3(LightsLocation[i].PositionLocation, lights[i].Position);
+                    GL.Uniform3(LightsLocation[i].ColorLocation, lights[i].Color);
+                    GL.Uniform3(LightsLocation[i].DirectionLocation, lights[i].Direction);
+                    GL.Uniform1(LightsLocation[i].ConeAngleLocation, lights[i].ConeAngle);
+                    GL.Uniform1(LightsLocation[i].TypeLocation, (int)lights[i].LightType);
+                    GL.Uniform1(LightsLocation[i].AmbientIntensityLocation, lights[i].AmbientIntensity);
+                    GL.Uniform1(LightsLocation[i].DiffuseIntensityLocation, lights[i].DiffuseIntensity);
+                    GL.Uniform1(LightsLocation[i].SpecularIntensityLocation, lights[i].SpecularIntensity);
+                    GL.Uniform3(LightsLocation[i].AttenuationLocation, lights[i].Attenuation);
                 }
                 else
                 {
-                    SetVector(Vector3.Zero, LightPositionLocation[i]);
-                    SetVector(Vector3.Zero, LightColorLocation[i]);
+                    Light tmp = new Light("");
+                    GL.Uniform3(LightsLocation[i].PositionLocation, tmp.Position);
+                    GL.Uniform3(LightsLocation[i].ColorLocation, tmp.Color);
+                    GL.Uniform3(LightsLocation[i].DirectionLocation, tmp.Direction);
+                    GL.Uniform1(LightsLocation[i].ConeAngleLocation, tmp.ConeAngle);
+                    GL.Uniform1(LightsLocation[i].TypeLocation, (int)tmp.LightType);
+                    GL.Uniform1(LightsLocation[i].AmbientIntensityLocation, tmp.AmbientIntensity);
+                    GL.Uniform1(LightsLocation[i].DiffuseIntensityLocation, tmp.DiffuseIntensity);
+                    GL.Uniform3(LightsLocation[i].AttenuationLocation, tmp.Attenuation);
                 }
             }
         }
-        private void SetVector(Vector3 vector,int location)
-        {
-            GL.Uniform3(location, ref vector);
-        }
+        
 
         public virtual void EnableVertexAttribArrays()
         {
@@ -243,4 +270,18 @@ namespace Grafika_lab_4.Renderers
         }
         #endregion
     }
+
+    public struct LightLocation
+    {
+        public int PositionLocation;
+        public int ColorLocation;
+        public int TypeLocation;
+        public int DirectionLocation;
+        public int ConeAngleLocation;
+        public int AmbientIntensityLocation;
+        public int DiffuseIntensityLocation;
+        public int SpecularIntensityLocation;
+        public int AttenuationLocation;
+    }
+
 }

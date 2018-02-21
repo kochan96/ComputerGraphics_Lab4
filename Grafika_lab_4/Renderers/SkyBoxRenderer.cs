@@ -28,8 +28,6 @@ namespace Grafika_lab_4.Renderers
         protected override string ViewMatrixUniName { get { return "ViewMatrix"; } }
         protected override string ProjMatrixUniName { get { return "ProjectionMatrix"; } }
         protected override string TextureSamplerUniName { get { return "CubeMap"; } }
-        protected override string LightPositionUniName { get { return "LightPosition"; } }
-        protected override string LightColorUniName { get { return " LightColor"; } }
         #endregion
 
 

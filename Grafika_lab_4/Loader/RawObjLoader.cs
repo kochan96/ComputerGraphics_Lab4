@@ -210,12 +210,20 @@ namespace Grafika_lab_4.Loader
         private static void ProcessVertex(string[] vertexData, List<Vector2> texturesList, List<Vector3> normalsList, List<int> indicesList, RawObjModel model)
         {
             int vertex = int.Parse(vertexData[0]) - 1;
-            int texture = int.Parse(vertexData[1]) - 1;
-            int normal = int.Parse(vertexData[2]) - 1;
+            int texture = -1;
+            if (vertexData.Length > 1)
+                texture = int.Parse(vertexData[1]) - 1;
+
+            int normal = -1;
+            if (vertexData.Length > 2)
+                normal = int.Parse(vertexData[2]) - 1;
 
             indicesList.Add(vertex);
-            model.Normals[vertex] = normalsList[normal];
-            model.TextureCoordinates[vertex] = texturesList[texture];
+            if (normal != -1)
+                model.Normals[vertex] = normalsList[normal];
+
+            if (texture != -1)
+                model.TextureCoordinates[vertex] = texturesList[texture];
         }
 
         private static List<Material> LoadMaterials(string filePath)

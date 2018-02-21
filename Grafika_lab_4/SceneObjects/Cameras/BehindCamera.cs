@@ -24,8 +24,7 @@ namespace Grafika_lab_4.SceneObjects.Cameras
         {
             CameraTarget = follow.Position;
             CameraPosition = CameraTarget - follow.Forward * Dist*(float)Math.Cos(Angle);
-            CameraPosition = CameraPosition + follow.Up * Dist * (float)Math.Sin(Angle);
-            CameraUp = follow.Up;
+            CameraPosition = CameraPosition + CameraUp * Dist * (float)Math.Sin(Angle);
         }
     }
 }

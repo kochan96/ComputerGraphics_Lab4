@@ -49,9 +49,7 @@ namespace Grafika_lab_4.SceneObjects.Base
         {
             get
             {
-                Vector3 rotated=Rotation* (-Vector3.UnitZ);
-                rotated.Normalize();
-                return rotated;
+                return Rotation * (-Vector3.UnitZ);
             }
         }
 
@@ -164,14 +162,16 @@ namespace Grafika_lab_4.SceneObjects.Base
             Scale *= scale;
         }
 
-
+        public void SetPosition(Vector3 position)
+        {
+            Translate(position - Position);
+        }
         /// <summary>
         /// Translates object by vector
         /// </summary>
         /// <param name="translate">translation vector</param>
         public void Translate(Vector3 translate)
         {
-
             ModelMatrix = ModelMatrix * Matrix4.CreateTranslation(translate);
         }
 
@@ -211,6 +211,8 @@ namespace Grafika_lab_4.SceneObjects.Base
             Rotation = q*Rotation;
         }
 
+
+
         /// <summary>
         /// Rotate object by Up vector (Changes Forward and Right Vector)
         /// Default Forward vector: (0,0,-1)
@@ -245,6 +247,18 @@ namespace Grafika_lab_4.SceneObjects.Base
             Rotation = q*Rotation;
         }
         /// <summary>
+        /// Rotates object over axis (Changes Direction vectors)
+        /// </summary>
+        /// <param name="angle">angle of rotation</param>
+        /// <param name="axis">axis of rotation</param>
+        public void RotateAndChange(float angle, Vector3 axis)
+        {
+            Quaternion q = CreateQuaternion(angle, axis);
+            ModelMatrix = ModelMatrix * Matrix4.CreateFromQuaternion(q);
+            Rotation = q*Rotation;
+        }
+
+        /// <summary>
         /// Rotates object over axis (Does not change Forward,Up and Right vectors)
         /// </summary>
         /// <param name="angle">angle of rotation</param>
@@ -253,6 +267,13 @@ namespace Grafika_lab_4.SceneObjects.Base
         {
             Quaternion q = CreateQuaternion(angle, axis);
             ModelMatrix = ModelMatrix * Matrix4.CreateFromQuaternion(q);
+        }
+
+        public void ResetRotation()
+        {
+            Quaternion reverse = Rotation.Inverted();
+            ModelMatrix = ModelMatrix * Matrix4.CreateFromQuaternion(reverse);
+            Rotation = reverse * Rotation;
         }
 
         /// <summary>

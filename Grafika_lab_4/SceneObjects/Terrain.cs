@@ -141,7 +141,7 @@ namespace Grafika_lab_4.SceneObjects
 
             Color pixel = bmp.GetPixel(x, y);
             float value = pixel.R * pixel.G * pixel.B;
-            value -= MAX_PIXEL_COLOR / 2f;
+            //value -= MAX_PIXEL_COLOR / 2f;
             value /= MAX_PIXEL_COLOR / 2f;
             return value;
         }

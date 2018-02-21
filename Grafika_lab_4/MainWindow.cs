@@ -25,11 +25,15 @@ namespace Grafika_lab_4
         DateTime lastMeasuredTime;
         int frames;
         Matrix4 ProjectionMatrix;
+        Light EditLight;
         List<Camera> cameras = new List<Camera>();
         int activeCameraIndex = 0;
         List<Light> lights = new List<Light>();
         List<RenderSceneObject> renderObjects = new List<RenderSceneObject>();
         Vector3 SkyColor = new Vector3(0.5f, 0.5f, 0.5f);
+        bool PhongLightinngModel=true;
+        bool PhongShading = true;
+        Aircraft aircraft;
         #endregion;
 
         #region InitProgram
@@ -46,6 +50,10 @@ namespace Grafika_lab_4
             CreateObjects();
             SetTimer();
         }
+
+
+    
+
         private void SetGLParameter()
         {
             GL.ClearColor(SkyColor.X, SkyColor.Y, SkyColor.Z, 1.0f);
@@ -57,74 +65,112 @@ namespace Grafika_lab_4
         {
             Texture texture1 = TextureLoader.LoadTexture2D(Resources.GreenTexture);
             Texture texture2 = TextureLoader.LoadTexture2D(Resources.RockTexture);
-            Texture texture3 = TextureLoader.LoadTexture2D(Resources.TestTexture);
             Texture skyBoxTexture1 = TextureLoader.LoadCubeMap(Resources.SkyCubeMapTextures);
-            Texture sphereTexture1 = TextureLoader.LoadTexture2D(Resources.SphereTexture);
+            Texture TreeTexture = TextureLoader.LoadTexture2D(Resources.TreeTexture);
             ///Terain
-            Terrain terrain = new Terrain("Terrain", Resources.RiverMountainHeightMap)
+            Terrain terrain = new Terrain("Terrain", Resources.MountainsHeightMap)
             {
-                Texture = texture2,
+                Texture = texture1,
             };
-            float TerrainWidth = 100f;
-            float TerrainLength = 100f;
-            terrain.ScaleObject(new Vector3(TerrainWidth, TerrainLength, 5f));
+            float TerrainLength = 300f;
+            float TerrainHeight = 20f;
+
+            terrain.ScaleObject(new Vector3(TerrainLength, TerrainLength, TerrainHeight));
             terrain.Pitch(-MathHelper.PiOver2);
+            
 
             ///FirstAircraft
-            Aircraft aircraft = new Aircraft("Aircraft1");
-            aircraft.Speed = 1f;
-            aircraft.ScaleObject(50f);
+            aircraft = new Aircraft("Aircraft1");
+            aircraft.Speed = 0.4f;
+            aircraft.HumanControlSpeed = 20f;
+            aircraft.ScaleObject(100f);
             aircraft.RotateByY(MathHelper.PiOver2);
             aircraft.RotateByZ(MathHelper.PiOver2);
             aircraft.Translate(Vector3.UnitX);
-            aircraft.Semimajor = 20f;
-            aircraft.Semiminor = 20f;
+            aircraft.Semimajor = 50f;
+            aircraft.Semiminor =50f;
+            aircraft.Translate(aircraft.Up * 8f);
+            aircraft.HumanControl = true;
+            aircraft.HumanControl = false;
 
-            ///SecondAircraft
-            Aircraft aircraft2 = new Aircraft("Aircraft2");
-            aircraft2.Speed = 1f;
-            aircraft2.ScaleObject(50f);
-            aircraft2.RotateByY(MathHelper.PiOver2);
-            aircraft2.RotateByZ(MathHelper.PiOver2);
-            aircraft2.Semimajor = 30f;
-            aircraft2.Semiminor = 20f;
+            /* ControlableAircraft controlAircraft = new ControlableAircraft("PlayerAircrft");
+             controlAircraft.Speed = 0.5f;
+             controlAircraft.ScaleObject(50f);
+             controlAircraft.RotateByY(MathHelper.PiOver2);
+             controlAircraft.RotateByZ(MathHelper.PiOver2);
+             controlAircraft.RotateAndChange(MathHelper.Pi, Vector3.UnitY);
+             controlAircraft.Translate(-20f * controlAircraft.Forward);
+             controlAircraft.Translate(aircraft.Up * 5f);*/
+
+
 
             Sphere sphere = new Sphere("spher", 100);
             sphere.ScaleObject(5);
+            sphere.Color = Vector3.UnitX;
+            sphere.SpecularExponent = 10f;
+            sphere.SetPosition(new Vector3(-50f, 8f, 50f));
 
             Sphere sphere2 = new Sphere("sphere2", 100);
             sphere2.ScaleObject(5);
-            sphere2.Texture = sphereTexture1;
-            sphere2.Translate(sphere2.Up * 15f);
+            sphere2.Color = Vector3.UnitY;
+            sphere2.SpecularExponent = 500f;
+            sphere2.SetPosition(new Vector3(50f, 8f, 50f));
 
-            SkyBox skybox = new SkyBox("SkyBox");
+            Cube cube = new Cube("cube");
+            cube.Color = Vector3.One;
+            cube.SpecularExponent = 1f;
+            cube.ScaleObject(new Vector3(1.2f, 10f,1.2f));
+            cube.SetPosition(new Vector3(60f, 5f, 0f));
+
+            Sphere sphere3 = new Sphere("sphere2", 100);
+            sphere3.ScaleObject(5);
+            sphere3.Color = Vector3.UnitY;
+            sphere3.SpecularExponent = 1000f;
+            sphere3.Translate(cube.Position);
+            sphere3.Translate(cube.Up * (cube.Scale.Y+1.5f));
+
+            SkyBox skybox = new SkyBox("SkyBox",TerrainLength);
             skybox.Texture = skyBoxTexture1;
-            skybox.ScaleObject(new Vector3(TerrainWidth, TerrainLength, TerrainLength));
-
 
 
             ///RenderObjects
             renderObjects.Add(terrain);
             renderObjects.Add(aircraft);
-            renderObjects.Add(aircraft2);
+
+            for(int i = 0; i < 500; i++)
+            {
+                Tree tree = new Tree("");
+                tree.Texture = TreeTexture;
+                float X = rnd.Next(2 * (int)TerrainLength);
+                X -= TerrainLength / 2;
+                X *= 2;
+                float Z = rnd.Next(2 * (int)TerrainLength);
+                Z -= TerrainLength / 2;
+                Z *= 2;
+                tree.SetPosition(new Vector3(X, 2f, Z));
+                renderObjects.Add(tree);
+            }
+
             renderObjects.Add(sphere);
             renderObjects.Add(sphere2);
+            renderObjects.Add(cube);
+            renderObjects.Add(sphere3);
 
             ///render last
             renderObjects.Add(skybox);
 
             MovingCamera moveCamera = new MovingCamera("MovingCamera")
             {
-                CameraPosition = new Vector3(-2.2f, 45.8f, 168.39f),
+                CameraPosition = new Vector3(-2.2f, 45.8f, 90.39f),
                 MoveSpeed = 1.5f
             };
             Camera staticCamera = new StaticCamera("StaticCamera")
             {
-                CameraPosition = new Vector3(-2.2f, 45.8f, 150.39f)
+                CameraPosition = new Vector3(-2.2f, 45.8f, -90.39f)
             };
-            Camera staticFollowCamera = new StaticCamera("StaticFollowCamera", aircraft2)
+            Camera staticFollowCamera = new StaticCamera("StaticFollowCamera", aircraft)
             {
-                CameraPosition = new Vector3(0f, 10f, 10f)
+                CameraPosition = new Vector3(0f, 20f, 10f)
             };
             Camera staticFollowCamera2 = new StaticCamera("StaticFollowCamera", sphere)
             {
@@ -145,14 +191,25 @@ namespace Grafika_lab_4
 
             cameras[activeCameraIndex].IsActive = true;
 
-            //PointLights
-            Light light = new Light("MainLight")
+            //Lights
+            Light light = new Light("Light")
             {
-                Position = 1000f * Vector3.UnitY
+                Position = 50f* Vector3.UnitY,
+                Color=Vector3.One,
+                LightType=LightTypes.PointLight,
+                AmbientIntensity=0.1f,
+                DiffuseIntensity=0.8f,
+                SpecularIntensity=0.1f
             };
 
-            //Lights
+          
+
+            light.Direction = (Vector3.Zero - light.Position).Normalized();
             lights.Add(light);
+            lights.AddRange(aircraft.Light);
+            //lights.AddRange(controlAircraft.Light);
+            //
+            
         }
 
         private void SetTimer()
@@ -188,23 +245,12 @@ namespace Grafika_lab_4
             foreach (var cam in cameras)
                 cam.Update();
 
-            foreach (var light in lights)
-            {
-                Matrix4 moveMatrix=Matrix4.Identity;
-                if (lightRotationY >= MathHelper.TwoPi)
-                {
-                    lightRotationY = 0;
-                    moveMatrix = Matrix4.CreateRotationZ(MathHelper.PiOver2 * deltaTime);
-                }
-                float angle = MathHelper.PiOver2 * deltaTime;
-                moveMatrix *=Matrix4.CreateRotationY(angle);
-                lightRotationY += angle;
-                moveMatrix.Transpose();
-                light.Position = new Vector3(moveMatrix * new Vector4(lights[0].Position, 1.0f));
-            }
+
+
             glControl.Invalidate();
         }
-        float lightRotationY;
+
+        Random rnd = new Random();
 
         private void glControl_Paint(object sender, PaintEventArgs e)
         {
@@ -218,6 +264,7 @@ namespace Grafika_lab_4
                 obj.Renderer.SetProjectionMatrix(ProjectionMatrix, false);
                 obj.Renderer.SetTexture(obj.Texture);
                 obj.Renderer.SetLights(lights);
+                obj.Renderer.SetLightiningModel(PhongLightinngModel);
                 obj.Render();
                 obj.UnBind();
             }
@@ -233,6 +280,10 @@ namespace Grafika_lab_4
                 cameras[activeCameraIndex].IsActive = false;
                 activeCameraIndex = (activeCameraIndex + 1) % cameras.Count;
                 cameras[activeCameraIndex].IsActive = true;
+            }
+            else if(e.KeyCode==Keys.H)
+            {
+                aircraft.HumanControl = !aircraft.HumanControl;
             }
         }
 
@@ -268,6 +319,21 @@ namespace Grafika_lab_4
 
 
 
+
         #endregion
+
+        private void CombobBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (ShadingCombobBox == sender)
+            {
+                PhongShading = ShadingCombobBox.SelectedIndex==0;
+            }else if(LightningComboBox==sender)
+            {
+                PhongLightinngModel = LightningComboBox.SelectedIndex == 0;
+            }
+
+
+        }
+
     }
 }
