@@ -1,8 +1,10 @@
-﻿using Grafika_lab_4.Renderers;
+﻿using Grafika_lab_4.Lights;
+using Grafika_lab_4.Renderers;
 using Grafika_lab_4.SceneObjects.Base;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
 
 namespace Grafika_lab_4.SceneObjects
 {
@@ -17,14 +19,13 @@ namespace Grafika_lab_4.SceneObjects
         }
 
         SkyBoxRenderer renderer = SkyBoxRenderer.Instance;
-        public override Renderer Renderer { get { return renderer; } }
 
 
         private void CreateSkyBox()
         {
             Vector3[] vertices = CreateVertices();
             Bind();
-            SetVerticesBuffer(vertices);
+            SetVerticesBuffer(vertices,renderer.PositionLocation);
             UnBind();
         }
 
@@ -88,8 +89,9 @@ namespace Grafika_lab_4.SceneObjects
             GL.DeleteBuffer(vertexBuffer);
         }
 
-        public override void Render()
+        public override void Render(Matrix4 viewMatrix, Matrix4 projectionMatrix, List<Light> lights, bool PhongLightningModel, bool PhongShading)
         {
+            renderer.Use();
             renderer.EnableVertexAttribArrays();
             GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
             renderer.DisableVertexAttribArrays();

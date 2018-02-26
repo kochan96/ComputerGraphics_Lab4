@@ -7,88 +7,8 @@ namespace Grafika_lab_4.Renderers
 {
     public class EntityRenderer : Renderer
     {
-        public override int MAX_LIGHTS { get { return 5; } }
-
-
-        #region Shaders
-        protected override string VERTEX_SHADER { get { return Resources.AircraftVertexShader; } }
-        protected override string FRAGMENT_SHADER { get { return Resources.AircraftFragmentShader; } }
-        #endregion
-
-        #region AtributeNames
-        protected override string PositonAttrName { get { return "Position"; } }
-        protected override string TextCoordAttribName { get { return "TextCoord"; } }
-        protected override string NormalsAttribName { get { return "Normal"; } }
-        #endregion
-
-        #region UniformNames
-        protected override string ModelMatrixUniName { get { return "ModelMatrix"; } }
-        protected override string ViewMatrixUniName { get { return "ViewMatrix"; } }
-        protected override string ProjMatrixUniName { get { return "ProjectionMatrix"; } }
-        protected override string TextureSamplerUniName { get { return "TextureSampler"; } }
-
-        protected virtual string AmbientColorUniName { get { return "AmbientColor"; } }
-        protected virtual string DiffuseColorUniName { get { return "DiffuseColor"; } }
-        protected virtual string SpecularColorUniName { get { return "SpecularColor"; } }
-        protected virtual string SpecularExponenUniName { get { return "SpecularExponent"; } }
-
-        protected virtual string HasTextureUniName { get { return "HasTexture"; } }
-        #endregion
-
-
-        #region UniformLocations
-        int AmbientColorLocation;
-        int DiffuseColorLocation;
-        int SpecularColorLocation;
-        int SpecularExponentLocation;
-        int HasTextureLocation;
-        #endregion
-
-
-        #region SetLocations
-
-        protected override void SetUniformsLocations()
-        {
-            base.SetUniformsLocations();
-            AmbientColorLocation = GetUniformLocation(AmbientColorUniName);
-            DiffuseColorLocation = GetUniformLocation(DiffuseColorUniName);
-            SpecularColorLocation = GetUniformLocation(SpecularColorUniName);
-            SpecularExponentLocation = GetUniformLocation(SpecularExponenUniName);
-            HasTextureLocation = GetUniformLocation(HasTextureUniName);
-        }
-        #endregion
-
-        #region Methods
-
-        public void SetAmbientColor(Vector3 ambient)
-        {
-            GL.Uniform3(AmbientColorLocation, ambient);
-        }
-
-        public void SetDiffuseColor(Vector3 diffuse)
-        {
-            GL.Uniform3(DiffuseColorLocation, diffuse);
-        }
-
-        public void SetSpecularColor(Vector3 specular)
-        {
-            GL.Uniform3(SpecularColorLocation, specular);
-        }
-
-        public void SetSpecularExponenet(float specularExponent)
-        {
-            GL.Uniform1(SpecularExponentLocation, specularExponent);
-        }
-
-        public void SetHasTexture(bool hasTexture)
-        {
-            GL.Uniform1(HasTextureLocation, hasTexture ? 1 : 0);
-        }
-
-        #endregion
-
         #region Singleton
-        private EntityRenderer() { }
+        private EntityRenderer():base(Properties.Resources.entityVert,Properties.Resources.entityFrag,"EntityShader") { }
         private static volatile EntityRenderer instance;
         private static object syncRoot = new Object();
 
@@ -108,9 +28,95 @@ namespace Grafika_lab_4.Renderers
             }
         }
 
-        
+
 
         #endregion
+
+        #region AtributeLocation
+        public int PositonLocation { get; private set; }
+        public int TextureCoordLocation { get; private set; }
+        public int NormalLocation { get; private set; }
+        #endregion
+
+        #region UniformLocations
+        int AmbientColorLocation;
+        int DiffuseColorLocation;
+        int SpecularColorLocation;
+        int SpecularExponentLocation;
+        int HasTextureLocation;
+        int ViewMatrixLocation;
+        int ProjectionMatrixLocation;
+        int ModelMatrixLocation;
+        #endregion
+
+
+
+        protected override void SetAttributesLocations()
+        {
+            PositonLocation = GetAttrubuteLocation("Position");
+            TextureCoordLocation = GetAttrubuteLocation("TextCoord");
+            NormalLocation = GetAttrubuteLocation("Normal");
+        }
+
+        protected override void SetUniformsLocations()
+        {
+            AmbientColorLocation = GetUniformLocation("AmbientColor");
+            DiffuseColorLocation = GetUniformLocation("DiffuseColor");
+            SpecularColorLocation = GetUniformLocation("SpecularColor");
+            SpecularExponentLocation = GetUniformLocation("SpecularExponent");
+            HasTextureLocation = GetUniformLocation("HasTexture");
+        }
+
+        public override void EnableVertexAttribArrays()
+        {
+            GL.EnableVertexAttribArray(PositonLocation);
+            GL.EnableVertexAttribArray(TextureCoordLocation);
+            GL.EnableVertexAttribArray(NormalLocation);
+        }
+
+        public override void DisableVertexAttribArrays()
+        {
+            GL.DisableVertexAttribArray(PositonLocation);
+            GL.DisableVertexAttribArray(TextureCoordLocation);
+            GL.DisableVertexAttribArray(NormalLocation);
+        }
+
+
+        public void SetAmbientColor(Vector3 color)
+        {
+            GL.Uniform3(AmbientColorLocation, ref color);
+        }
+        public void SetDiffuseColor(Vector3 color)
+        {
+            GL.Uniform3(DiffuseColorLocation, ref color);
+        }
+        public void SetSpecularColor(Vector3 color)
+        {
+            GL.Uniform3(SpecularColorLocation, ref color);
+        }
+        public void SetSpecularExponent(float exponent)
+        {
+            GL.Uniform1(SpecularExponentLocation, exponent);
+        }
+        public void SetHasTexture(bool hasTexture)
+        {
+            GL.Uniform1(HasTextureLocation, hasTexture ? 1 : 0);
+        }
+
+        public void SetViewMatrix(Matrix4 viewMatrix)
+        {
+            GL.UniformMatrix4(ViewMatrixLocation,false, ref viewMatrix);
+        }
+
+        public void SetProjectionMatrix(Matrix4 projMatrix)
+        {
+            GL.UniformMatrix4(ViewMatrixLocation, false, ref projMatrix);
+        }
+
+        public void SetModelMatrix(Matrix4 modelMatrix)
+        {
+            GL.UniformMatrix4(ViewMatrixLocation, false, ref modelMatrix);
+        }
     }
 
 }

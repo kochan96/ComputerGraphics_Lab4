@@ -1,38 +1,12 @@
-﻿using Grafika_lab_4.Configuration;
+﻿using OpenTK.Graphics.OpenGL4;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grafika_lab_4.Renderers
 {
     public class SkyBoxRenderer : Renderer
-    {
-        public override int MAX_LIGHTS { get { return 4; } }
-        #region Shaders
-        protected override string VERTEX_SHADER { get { return Resources.SkyBoxVertexShader; } }
-        protected override string FRAGMENT_SHADER { get { return Resources.SkyBoxFragmentShader; } }
-        #endregion
-
-        #region AttributesNames
-        protected override string PositonAttrName { get { return "Position";}}
-        protected override string TextCoordAttribName { get { return "TextCoord"; } }
-        protected override string NormalsAttribName { get { return "Normal"; } }
-
-        #endregion
-
-        #region UniformNames
-
-        protected override string ModelMatrixUniName { get { return "ModelMatrix"; } }
-        protected override string ViewMatrixUniName { get { return "ViewMatrix"; } }
-        protected override string ProjMatrixUniName { get { return "ProjectionMatrix"; } }
-        protected override string TextureSamplerUniName { get { return "CubeMap"; } }
-        #endregion
-
-
+    { 
         #region Singleton
-        private SkyBoxRenderer() { }
+        private SkyBoxRenderer():base(Properties.Resources.SkyboxVert,Properties.Resources.skyboxFrag,nameof(SkyBoxRenderer)) { }
         private static volatile SkyBoxRenderer instance;
         private static object syncRoot = new Object();
 
@@ -51,10 +25,42 @@ namespace Grafika_lab_4.Renderers
                 return instance;
             }
         }
-
-
-
         #endregion
+
+        #region AttributeLocations
+        public int PositionLocation { get; private set; }
+        #endregion
+
+        #region UniformLocations
+        int ModelMatrixLocation;
+        int ViewMatrixLocation;
+        int ProjectionMatrixLocation;
+        int SamplerCubeLocation;
+        #endregion
+
+
+        public override void EnableVertexAttribArrays()
+        {
+            GL.EnableVertexAttribArray(PositionLocation);
+        }
+
+        public override void DisableVertexAttribArrays()
+        {
+            GL.DisableVertexAttribArray(PositionLocation);
+        }
+
+        protected override void SetAttributesLocations()
+        {
+            PositionLocation = GetAttrubuteLocation("Position");
+        }
+
+        protected override void SetUniformsLocations()
+        {
+            ModelMatrixLocation = GetUniformLocation("ModelMatrix");
+            ViewMatrixLocation = GetUniformLocation("ViewMatrix");
+            ProjectionMatrixLocation = GetUniformLocation("ProjectionMatrix");
+            SamplerCubeLocation = GetUniformLocation("CubeMap");
+        }
 
     }
 }

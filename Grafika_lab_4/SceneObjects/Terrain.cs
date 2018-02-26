@@ -1,8 +1,10 @@
-﻿using Grafika_lab_4.Renderers;
+﻿using Grafika_lab_4.Lights;
+using Grafika_lab_4.Renderers;
 using Grafika_lab_4.SceneObjects.Base;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -16,7 +18,6 @@ namespace Grafika_lab_4.SceneObjects
         int vertexCountX;
         int vertexCountY;
         TerrainRenderer renderer = TerrainRenderer.Instance;
-        public override Renderer Renderer { get { return renderer; } }
 
         /*protected override Vector3 DefaultForward { get { return Vector3.UnitY; } }
         protected override Vector3 DefaultUp { get { return Vector3.UnitZ; } }
@@ -107,10 +108,10 @@ namespace Grafika_lab_4.SceneObjects
                 normals = CreateNormals(vertices, indices);
 
             Bind();
-            SetVerticesBuffer(vertices);
+            SetVerticesBuffer(vertices,renderer.PositionLocation);
             SetIndicesBuffer(indices);
-            SetTextureBuffer(textcoord);
-            SetNormalsBuffer(normals);
+            SetTextureBuffer(textcoord,renderer.TextureCoordLocation);
+            SetNormalsBuffer(normals,renderer.NormalLocation);
 
             UnBind();
         }
@@ -272,11 +273,12 @@ namespace Grafika_lab_4.SceneObjects
             GL.GenBuffers(1, out normalsBuffer);
         }
 
-        public override void Render()
+        public override void Render(Matrix4 viewMatrix, Matrix4 projectionMatrix, List<Light> lights, bool PhongLightningModel, bool PhongShading)
         {
-            Renderer.EnableVertexAttribArrays();
+            renderer.Use();
+            renderer.EnableVertexAttribArrays();
             GL.DrawElements(BeginMode.TriangleStrip, indicesCount, DrawElementsType.UnsignedInt, 0);
-            Renderer.DisableVertexAttribArrays();
+            renderer.DisableVertexAttribArrays();
         }
 
         public override void Update(float deltatime)

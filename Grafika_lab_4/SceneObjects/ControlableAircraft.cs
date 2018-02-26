@@ -67,7 +67,7 @@ namespace Grafika_lab_4.SceneObjects
                 }
             }
 
-            float rotateY = Helper.MapValue(rolled, -MathHelper.PiOver4, MathHelper.PiOver4, -rotateLeftRight, rotateLeftRight);
+            float rotateY = Extensions.MapValue(rolled, -MathHelper.PiOver4, MathHelper.PiOver4, -rotateLeftRight, rotateLeftRight);
             RotateAndChange(-rotateY, Vector3.UnitY);
             Vector3 newPosition = oldPosition + Forward * Speed * deltatime;
             Translate(newPosition);

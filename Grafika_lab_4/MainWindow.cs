@@ -257,15 +257,8 @@ namespace Grafika_lab_4
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             foreach (var obj in renderObjects)
             {
-                obj.Renderer.Use();
                 obj.Bind();
-                obj.Renderer.SetModelMatrix(obj.ModelMatrix, false);
-                obj.Renderer.SetViewMatrix(cameras[activeCameraIndex].GetViewMatrix(), false);
-                obj.Renderer.SetProjectionMatrix(ProjectionMatrix, false);
-                obj.Renderer.SetTexture(obj.Texture);
-                obj.Renderer.SetLights(lights);
-                obj.Renderer.SetLightiningModel(PhongLightinngModel);
-                obj.Render();
+                obj.Render(cameras[activeCameraIndex].GetViewMatrix(),ProjectionMatrix,lights,PhongLightinngModel,PhongShading);
                 obj.UnBind();
             }
 
@@ -310,7 +303,6 @@ namespace Grafika_lab_4
         {
             foreach (var obj in renderObjects)
             {
-                obj.Renderer.Delete();
                 obj.Dispose();
             }
         }

@@ -52,17 +52,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\Errors.cs" />
-    <Compile Include="Helper.cs" />
+    <Compile Include="ExtensionMethods\Extensions.cs" />
     <Compile Include="Loader\Material.cs" />
     <Compile Include="Loader\Mesh.cs" />
     <Compile Include="Loader\RawObjLoader.cs" />
     <Compile Include="Loader\RawObjModel.cs" />
-    <Compile Include="Loader\TextureData.cs" />
     <Compile Include="Loader\TextureLoader.cs" />
     <Compile Include="Loader\Vertex.cs" />
     <Compile Include="Renderers\EntityRenderer.cs" />
     <Compile Include="Renderers\Renderer.cs" />
     <Compile Include="Renderers\SkyBoxRenderer.cs" />
+    <Compile Include="Renderers\Structs\LightLocation.cs" />
     <Compile Include="Resources.cs" />
     <Compile Include="SceneObjects\Aircraft.cs" />
     <Compile Include="SceneObjects\Base\RenderSceneObject.cs" />
@@ -92,13 +92,8 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -117,30 +112,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Resources\Models\Tree.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Shaders\entity.frag">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Shaders\entity.vert">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Shaders\skybox.frag">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Shaders\skybox.vert">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Shaders\sphere.frag">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Shaders\sphere.vert">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Shaders\terrain.frag">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Shaders\terrain.vert">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

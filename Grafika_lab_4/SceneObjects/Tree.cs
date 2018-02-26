@@ -18,8 +18,6 @@ namespace Grafika_lab_4.SceneObjects
 
         #region Fields
         EntityRenderer renderer = EntityRenderer.Instance;
-        public override Renderer Renderer { get { return renderer; } }
-
         public RawObjModel RawModel;
 
         #endregion
@@ -71,30 +69,31 @@ namespace Grafika_lab_4.SceneObjects
                 indices.AddRange(mesh.Indices);
             }
             RawModel = model;
-            SetVerticesBuffer(model.Vertices.ToArray());
+            SetVerticesBuffer(model.Vertices.ToArray(),renderer.PositonLocation);
             SetIndicesBuffer(indices.ToArray());
-            SetNormalsBuffer(model.Normals.ToArray());
-            SetTextureBuffer(model.TextureCoordinates.ToArray());
+            SetNormalsBuffer(model.Normals.ToArray(),renderer.NormalLocation);
+            SetTextureBuffer(model.TextureCoordinates.ToArray(),renderer.TextureCoordLocation);
             UnBind();
         }
 
-        public override void Render()
+        public override void Render(Matrix4 viewMatrix, Matrix4 projectionMatrix, List<Light> lights, bool PhongLightningModel, bool PhongShading)
         {
             if (RawModel != null)
             {
                 int offset = 0;
+                renderer.Use();
                 renderer.SetHasTexture(Texture != null);
-                Renderer.EnableVertexAttribArrays();
+                renderer.EnableVertexAttribArrays();
                 foreach (Mesh mesh in RawModel.Meshes)
                 {
                     renderer.SetAmbientColor(mesh.MeshMaterial.Ka);
                     renderer.SetDiffuseColor(mesh.MeshMaterial.Kd);
                     renderer.SetSpecularColor(mesh.MeshMaterial.Ks);
-                    renderer.SetSpecularExponenet(mesh.MeshMaterial.Ns);
+                    renderer.SetSpecularExponent(mesh.MeshMaterial.Ns);
                     GL.DrawElements(BeginMode.Triangles, mesh.Indices.Count, DrawElementsType.UnsignedInt, offset * sizeof(uint));
                     offset += mesh.Indices.Count;
                 }
-                Renderer.DisableVertexAttribArrays();
+                renderer.DisableVertexAttribArrays();
             }
         }
 

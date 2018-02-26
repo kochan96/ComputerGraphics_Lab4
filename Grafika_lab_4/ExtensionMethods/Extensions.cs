@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Grafika_lab_4
 {
-    public static class Helper
+    public static class Extensions
     {
         public static float MapValue(float value, float from1, float to1, float from2, float to2)
         {

@@ -1,9 +1,11 @@
 ﻿using Grafika_lab_4.Configuration;
+using Grafika_lab_4.Lights;
 using Grafika_lab_4.Renderers;
 using Grafika_lab_4.SceneObjects.Base;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
@@ -29,9 +31,9 @@ namespace Grafika_lab_4.SceneObjects
             int[] indices = CreateIndices();
             Vector3[] normals = CreateNormals(vertices);
             Bind();
-            SetVerticesBuffer(vertices);
+            SetVerticesBuffer(vertices,renderer.PositonLocation);
             SetIndicesBuffer(indices);
-            SetNormalsBuffer(normals);
+            SetNormalsBuffer(normals,renderer.NormalLocation);
             UnBind();
         }
 
@@ -42,10 +44,10 @@ namespace Grafika_lab_4.SceneObjects
             Vector3[] vertices = new Vector3[(Total + 1) * (Total + 1)];
             for (int i = 0; i < Total + 1; i++)
             {
-                float lon = Helper.MapValue(i, 0, Total, -MathHelper.Pi, MathHelper.Pi);
+                float lon = Extensions.MapValue(i, 0, Total, -MathHelper.Pi, MathHelper.Pi);
                 for (int j = 0; j < Total + 1; j++)
                 {
-                    float lat = Helper.MapValue(j, 0, Total, -MathHelper.PiOver2, MathHelper.PiOver2);
+                    float lat = Extensions.MapValue(j, 0, Total, -MathHelper.PiOver2, MathHelper.PiOver2);
                     float x = (float)(Math.Sin(lon) * Math.Cos(lat));
                     float y = (float)(Math.Sin(lon) * Math.Sin(lat));
                     float z = (float)Math.Cos(lon);
@@ -85,7 +87,6 @@ namespace Grafika_lab_4.SceneObjects
 
 
         EntityRenderer renderer = EntityRenderer.Instance;
-        public override Renderer Renderer { get { return renderer; } }
 
         protected override void GenerateBuffers()
         {
@@ -109,13 +110,13 @@ namespace Grafika_lab_4.SceneObjects
 
         public float SpecularExponent { get; set;}
 
-        public override void Render()
+        public override void Render(Matrix4 viewMatrix, Matrix4 projectionMatrix, List<Light> lights, bool PhongLightningModel, bool PhongShading)
         {
             renderer.SetHasTexture(Texture != null);
             renderer.SetAmbientColor(Color);
             renderer.SetDiffuseColor(Color);
             renderer.SetSpecularColor(Color);
-            renderer.SetSpecularExponenet(SpecularExponent);
+            renderer.SetSpecularExponent(SpecularExponent);
             renderer.EnableVertexAttribArrays();
             GL.DrawElements(BeginMode.TriangleStrip, indicesCount, DrawElementsType.UnsignedInt, 0);
             renderer.DisableVertexAttribArrays();

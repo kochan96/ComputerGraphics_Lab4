@@ -1,34 +1,13 @@
 ﻿using Grafika_lab_4.Configuration;
+using OpenTK.Graphics.OpenGL4;
 using System;
 
 namespace Grafika_lab_4.Renderers
 {
     public class TerrainRenderer : Renderer
     {
-        public override int MAX_LIGHTS { get { return 5; } }
-        #region Shaders
-        protected override string VERTEX_SHADER { get { return Resources.TerrainVertexShader; } }
-        protected override string FRAGMENT_SHADER { get { return Resources.TerrainFragmentShader; } }
-        #endregion
-
-        #region AtributeNames
-        protected override string PositonAttrName { get { return "Position"; } }
-        protected override string TextCoordAttribName { get { return "TextCoord"; } }
-        protected override string NormalsAttribName { get { return "Normal"; } }
-        #endregion
-
-        #region UniformNames
-        protected override string ModelMatrixUniName { get { return "ModelMatrix"; } }
-        protected override string ViewMatrixUniName { get { return "ViewMatrix"; } }
-        protected override string ProjMatrixUniName { get { return "ProjectionMatrix"; } }
-        protected override string TextureSamplerUniName { get { return "TextureSampler"; } }
-
-        #endregion
-
-
-
         #region Singleton
-        private TerrainRenderer() { }
+        private TerrainRenderer():base(Properties.Resources.terrain1,Properties.Resources.terrainFrag,nameof(TerrainRenderer)) { }
         private static volatile TerrainRenderer instance;
         private static object syncRoot = new Object();
 
@@ -48,6 +27,47 @@ namespace Grafika_lab_4.Renderers
             }
         }
 
+
+
         #endregion
+
+        #region AttributeLocations
+        public int PositionLocation { get; private set; }
+        public int NormalLocation { get; private set; }
+        public int TextureCoordLocation { get; private set; }
+        #endregion
+
+        #region UniformsLocation
+        int ModelMatrixLocation;
+        int ViewMatrixLocation;
+        int ProjectionMatrixLocation;
+        #endregion
+
+        public override void EnableVertexAttribArrays()
+        {
+            GL.EnableVertexAttribArray(PositionLocation);
+            GL.EnableVertexAttribArray(NormalLocation);
+            GL.EnableVertexAttribArray(TextureCoordLocation);
+        }
+
+        public override void DisableVertexAttribArrays()
+        {
+            GL.DisableVertexAttribArray(PositionLocation);
+            GL.DisableVertexAttribArray(NormalLocation);
+            GL.DisableVertexAttribArray(TextureCoordLocation);
+        }
+
+        protected override void SetAttributesLocations()
+        {
+            PositionLocation = GetAttrubuteLocation("Position");
+            NormalLocation = GetAttrubuteLocation("Normal");
+            TextureCoordLocation = GetAttrubuteLocation("TextCoord");
+        }
+
+        protected override void SetUniformsLocations()
+        {
+            
+        }
+
     }
 }

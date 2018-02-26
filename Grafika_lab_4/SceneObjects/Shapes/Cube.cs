@@ -1,4 +1,5 @@
-﻿using Grafika_lab_4.Loader;
+﻿using Grafika_lab_4.Lights;
+using Grafika_lab_4.Loader;
 using Grafika_lab_4.Renderers;
 using Grafika_lab_4.SceneObjects.Base;
 using OpenTK;
@@ -24,15 +25,14 @@ namespace Grafika_lab_4.SceneObjects
         public float SpecularExponent { get; set; }
 
         EntityRenderer renderer = EntityRenderer.Instance;
-        public override Renderer Renderer { get { return renderer; } }
 
         private void CreateCube()
         {
             Vector3[] vertices = CreateVertices();
             Vector3[] normals = CreateNormals();
             Bind();
-            SetVerticesBuffer(vertices);
-            SetNormalsBuffer(normals);
+            SetVerticesBuffer(vertices,renderer.PositonLocation);
+            SetNormalsBuffer(normals,renderer.NormalLocation);
             UnBind();
         }
 
@@ -158,13 +158,13 @@ namespace Grafika_lab_4.SceneObjects
             GL.DeleteBuffer(normalsBuffer);
         }
 
-        public override void Render()
+        public override void Render(Matrix4 viewMatrix, Matrix4 projectionMatrix, List<Light> lights, bool PhongLightningModel, bool PhongShading)
         {
             renderer.SetHasTexture(Texture != null);
             renderer.SetAmbientColor(Color);
             renderer.SetDiffuseColor(Color);
             renderer.SetSpecularColor(Color);
-            renderer.SetSpecularExponenet(SpecularExponent);
+            renderer.SetSpecularExponent(SpecularExponent);
             renderer.EnableVertexAttribArrays();
             GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
             renderer.DisableVertexAttribArrays();

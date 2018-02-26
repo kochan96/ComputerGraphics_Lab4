@@ -42,19 +42,6 @@ namespace Grafika_lab_4.Loader
             return new Texture(texID, 2);
         }
 
-        private static TextureData GetTextureData(string fileName)
-        {
-            try
-            {
-                return null;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-
-        }
-
         public static Texture LoadCubeMap(string[] FileNames)
         {
             int textId = GL.GenTexture();

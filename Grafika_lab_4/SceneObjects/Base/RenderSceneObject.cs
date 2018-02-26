@@ -3,6 +3,7 @@ using Grafika_lab_4.Renderers;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
 
 namespace Grafika_lab_4.SceneObjects.Base
 {
@@ -23,8 +24,7 @@ namespace Grafika_lab_4.SceneObjects.Base
 
         #region Properties
         public string Name { get; set; }
-        public abstract Renderer Renderer { get; }
-        public Matrix4 ModelMatrix { get; private set; }
+        protected Matrix4 ModelMatrix { get; private set; }
         public Texture Texture { get; set; }
 
 
@@ -95,11 +95,11 @@ namespace Grafika_lab_4.SceneObjects.Base
 
         #region SetBuffers
 
-        protected void SetVerticesBuffer(Vector3[] vertices)
+        protected void SetVerticesBuffer(Vector3[] vertices,int position)
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffer);
             GL.BufferData<Vector3>(BufferTarget.ArrayBuffer, vertices.Length * Vector3.SizeInBytes, vertices, BufferUsageHint.StaticDraw);
-            GL.VertexAttribPointer(Renderer.PositionDataLocation, 3, VertexAttribPointerType.Float, false, 0, 0);
+            GL.VertexAttribPointer(position, 3, VertexAttribPointerType.Float, false, 0, 0);
         }
 
         protected void SetIndicesBuffer(int[] indices)
@@ -108,25 +108,25 @@ namespace Grafika_lab_4.SceneObjects.Base
             GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(int), indices, BufferUsageHint.StaticDraw);
 
         }
-        protected void SetTextureBuffer(Vector2[] textcoord)
+        protected void SetTextureBuffer(Vector2[] textcoord,int position)
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, textureBuffer);
             GL.BufferData(BufferTarget.ArrayBuffer, textcoord.Length * Vector2.SizeInBytes, textcoord, BufferUsageHint.StaticDraw);
-            GL.VertexAttribPointer(Renderer.TextCoordLocation, 2, VertexAttribPointerType.Float, true, 0, 0);
+            GL.VertexAttribPointer(position, 2, VertexAttribPointerType.Float, true, 0, 0);
         }
 
-        protected void SetTextureBuffer(Vector3[] textcoord)
+        protected void SetTextureBuffer(Vector3[] textcoord,int position)
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, textureBuffer);
             GL.BufferData(BufferTarget.ArrayBuffer, textcoord.Length * Vector3.SizeInBytes, textcoord, BufferUsageHint.StaticDraw);
-            GL.VertexAttribPointer(Renderer.TextCoordLocation, 3, VertexAttribPointerType.Float, true, 0, 0);
+            GL.VertexAttribPointer(position, 3, VertexAttribPointerType.Float, true, 0, 0);
         }
 
-        protected void SetNormalsBuffer(Vector3[] normals)
+        protected void SetNormalsBuffer(Vector3[] normals,int position)
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, normalsBuffer);
             GL.BufferData(BufferTarget.ArrayBuffer, normals.Length * Vector3.SizeInBytes, normals, BufferUsageHint.StaticDraw);
-            GL.VertexAttribPointer(Renderer.NormalsDataLocation, 3, VertexAttribPointerType.Float, true, 0, 0);
+            GL.VertexAttribPointer(position, 3, VertexAttribPointerType.Float, true, 0, 0);
         }
 
         #endregion
@@ -308,14 +308,22 @@ namespace Grafika_lab_4.SceneObjects.Base
 
         #endregion
 
-
-        public abstract void Render();
+        /// <summary>
+        /// Render an object
+        /// </summary>
+        /// <param name="viewMatrix">CameraMatrix</param>
+        /// <param name="projectionMatrix">ProjectionMatrix</param>
+        /// <param name="lights">List of lights</param>
+        /// <param name="PhongLightningModel">True if Phong, False if Blinn</param>
+        /// <param name="PhongShading">True if Phong, False if Gouroud</param>
+        public abstract void Render(Matrix4 viewMatrix,Matrix4 projectionMatrix,List<Lights.Light> lights,bool PhongLightningModel,bool PhongShading);
 
         public abstract void Update(float deltatime);
 
         public abstract void Dispose();
 
         protected abstract void GenerateBuffers();
+
 
     }
 }

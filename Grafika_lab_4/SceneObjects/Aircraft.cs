@@ -18,13 +18,9 @@ namespace Grafika_lab_4.SceneObjects
 
         #region Fields
         EntityRenderer renderer = EntityRenderer.Instance;
-        public override Renderer Renderer { get { return renderer; } }
 
         public RawObjModel RawModel;
-        /*
-        protected override Vector3 DefaultForward { get { return Vector3.UnitX; } }
-        protected override Vector3 DefaultUp { get { return Vector3.UnitZ; } }
-        protected override Vector3 DefaultRight { get { return -Vector3.UnitY; } }*/
+
 
         public float Speed { get; set; }
         public float HumanControlSpeed { get; set; }
@@ -122,30 +118,34 @@ namespace Grafika_lab_4.SceneObjects
                 indices.AddRange(mesh.Indices);
             }
             RawModel = model;
-            SetVerticesBuffer(model.Vertices.ToArray());
+            SetVerticesBuffer(model.Vertices.ToArray(),renderer.PositonLocation);
             SetIndicesBuffer(indices.ToArray());
-            SetNormalsBuffer(model.Normals.ToArray());
+            SetNormalsBuffer(model.Normals.ToArray(),renderer.NormalLocation);
 
             UnBind();
         }
 
-        public override void Render()
+        public override void Render(Matrix4 viewMatrix, Matrix4 projectionMatrix, List<Light> lights, bool PhongLightningModel, bool PhongShading)
         {
             if (RawModel != null)
             {
                 int offset = 0;
-                Renderer.EnableVertexAttribArrays();
+                renderer.Use();
+                renderer.SetProjectionMatrix(projectionMatrix);
+                renderer.SetViewMatrix(viewMatrix);
+                renderer.SetModelMatrix(ModelMatrix);
                 renderer.SetHasTexture(Texture != null);
+                renderer.EnableVertexAttribArrays();
                 foreach (Mesh mesh in RawModel.Meshes)
                 {
                     renderer.SetAmbientColor(mesh.MeshMaterial.Ka);
                     renderer.SetDiffuseColor(mesh.MeshMaterial.Kd);
                     renderer.SetSpecularColor(mesh.MeshMaterial.Ks);
-                    renderer.SetSpecularExponenet(mesh.MeshMaterial.Ns);
+                    renderer.SetSpecularExponent(mesh.MeshMaterial.Ns);
                     GL.DrawElements(BeginMode.Triangles, mesh.Indices.Count, DrawElementsType.UnsignedInt, offset * sizeof(uint));
                     offset += mesh.Indices.Count;
                 }
-                Renderer.DisableVertexAttribArrays();
+                renderer.DisableVertexAttribArrays();
             }
         }
         /// <summary>
@@ -292,7 +292,7 @@ namespace Grafika_lab_4.SceneObjects
                 }
             }
 
-            float rotateY = Helper.MapValue(rolled, -MathHelper.PiOver4, MathHelper.PiOver4, -rotateLeftRight, rotateLeftRight);
+            float rotateY = Extensions.MapValue(rolled, -MathHelper.PiOver4, MathHelper.PiOver4, -rotateLeftRight, rotateLeftRight);
             RotateAndChange(-rotateY, Vector3.UnitY);
             Vector3 newPosition = oldPosition + Forward * HumanControlSpeed * deltatime;
             Translate(newPosition);
