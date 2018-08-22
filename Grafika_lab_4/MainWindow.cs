@@ -19,24 +19,19 @@ namespace Grafika_lab_4
             InitializeComponent();
         }
 
-
-        #region Fields
         DateTime lastMeasuredFPSTime;
         DateTime lastMeasuredTime;
         int frames;
         Matrix4 ProjectionMatrix;
-        Light EditLight;
         List<Camera> cameras = new List<Camera>();
         int activeCameraIndex = 0;
         List<Light> lights = new List<Light>();
         List<RenderSceneObject> renderObjects = new List<RenderSceneObject>();
         Vector3 SkyColor = new Vector3(0.5f, 0.5f, 0.5f);
-        bool PhongLightinngModel=true;
+        bool PhongLightinngModel = true;
         bool PhongShading = true;
         Aircraft aircraft;
-        #endregion;
 
-        #region InitProgram
         private void MainWindow_Load(object sender, EventArgs e)
         {
             InitProgram();
@@ -50,9 +45,6 @@ namespace Grafika_lab_4
             CreateObjects();
             SetTimer();
         }
-
-
-    
 
         private void SetGLParameter()
         {
@@ -77,7 +69,7 @@ namespace Grafika_lab_4
 
             terrain.ScaleObject(new Vector3(TerrainLength, TerrainLength, TerrainHeight));
             terrain.Pitch(-MathHelper.PiOver2);
-            
+
 
             ///FirstAircraft
             aircraft = new Aircraft("Aircraft1");
@@ -88,7 +80,7 @@ namespace Grafika_lab_4
             aircraft.RotateByZ(MathHelper.PiOver2);
             aircraft.Translate(Vector3.UnitX);
             aircraft.Semimajor = 50f;
-            aircraft.Semiminor =50f;
+            aircraft.Semiminor = 50f;
             aircraft.Translate(aircraft.Up * 8f);
             aircraft.HumanControl = true;
             aircraft.HumanControl = false;
@@ -101,8 +93,6 @@ namespace Grafika_lab_4
              controlAircraft.RotateAndChange(MathHelper.Pi, Vector3.UnitY);
              controlAircraft.Translate(-20f * controlAircraft.Forward);
              controlAircraft.Translate(aircraft.Up * 5f);*/
-
-
 
             Sphere sphere = new Sphere("spher", 100);
             sphere.ScaleObject(5);
@@ -119,7 +109,7 @@ namespace Grafika_lab_4
             Cube cube = new Cube("cube");
             cube.Color = Vector3.One;
             cube.SpecularExponent = 1f;
-            cube.ScaleObject(new Vector3(1.2f, 10f,1.2f));
+            cube.ScaleObject(new Vector3(1.2f, 10f, 1.2f));
             cube.SetPosition(new Vector3(60f, 5f, 0f));
 
             Sphere sphere3 = new Sphere("sphere2", 100);
@@ -127,17 +117,16 @@ namespace Grafika_lab_4
             sphere3.Color = Vector3.UnitY;
             sphere3.SpecularExponent = 1000f;
             sphere3.Translate(cube.Position);
-            sphere3.Translate(cube.Up * (cube.Scale.Y+1.5f));
+            sphere3.Translate(cube.Up * (cube.Scale.Y + 1.5f));
 
-            SkyBox skybox = new SkyBox("SkyBox",TerrainLength);
+            SkyBox skybox = new SkyBox("SkyBox", TerrainLength);
             skybox.Texture = skyBoxTexture1;
-
 
             ///RenderObjects
             renderObjects.Add(terrain);
             renderObjects.Add(aircraft);
 
-            for(int i = 0; i < 500; i++)
+            for (int i = 0; i < 500; i++)
             {
                 Tree tree = new Tree("");
                 tree.Texture = TreeTexture;
@@ -194,22 +183,22 @@ namespace Grafika_lab_4
             //Lights
             Light light = new Light("Light")
             {
-                Position = 50f* Vector3.UnitY,
-                Color=Vector3.One,
-                LightType=LightTypes.PointLight,
-                AmbientIntensity=0.1f,
-                DiffuseIntensity=0.8f,
-                SpecularIntensity=0.1f
+                Position = 50f * Vector3.UnitY,
+                Color = Vector3.One,
+                LightType = LightTypes.PointLight,
+                AmbientIntensity = 0.1f,
+                DiffuseIntensity = 0.8f,
+                SpecularIntensity = 0.1f
             };
 
-          
+
 
             light.Direction = (Vector3.Zero - light.Position).Normalized();
             lights.Add(light);
             lights.AddRange(aircraft.Light);
             //lights.AddRange(controlAircraft.Light);
             //
-            
+
         }
 
         private void SetTimer()
@@ -224,9 +213,6 @@ namespace Grafika_lab_4
             timer.Start();
         }
 
-        #endregion
-
-        #region Render
         private void Timer_Tick(object sender, EventArgs e)
         {
             if (DateTime.Now.Subtract(lastMeasuredFPSTime) >= TimeSpan.FromSeconds(1))
@@ -240,12 +226,14 @@ namespace Grafika_lab_4
             float deltaTime = (float)DateTime.Now.Subtract(lastMeasuredTime).TotalSeconds;
             lastMeasuredTime = DateTime.Now;
             foreach (var obj in renderObjects)
+            {
                 obj.Update(deltaTime);
+            }
 
             foreach (var cam in cameras)
+            {
                 cam.Update();
-
-
+            }
 
             glControl.Invalidate();
         }
@@ -258,14 +246,13 @@ namespace Grafika_lab_4
             foreach (var obj in renderObjects)
             {
                 obj.Bind();
-                obj.Render(cameras[activeCameraIndex].GetViewMatrix(),ProjectionMatrix,lights,PhongLightinngModel,PhongShading);
+                obj.Render(cameras[activeCameraIndex].GetViewMatrix(), ProjectionMatrix, lights, PhongLightinngModel, PhongShading);
                 obj.UnBind();
             }
 
             glControl.SwapBuffers();
-            this.frames++;
+            frames++;
         }
-
         private void glControl_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.C)
@@ -274,7 +261,7 @@ namespace Grafika_lab_4
                 activeCameraIndex = (activeCameraIndex + 1) % cameras.Count;
                 cameras[activeCameraIndex].IsActive = true;
             }
-            else if(e.KeyCode==Keys.H)
+            else if (e.KeyCode == Keys.H)
             {
                 aircraft.HumanControl = !aircraft.HumanControl;
             }
@@ -286,9 +273,7 @@ namespace Grafika_lab_4
             ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(1.3f, glControl.Width / (float)glControl.Height, 1f, 1000f);
 
         }
-        #endregion
 
-        #region Menu
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             CleanUp();
@@ -307,25 +292,16 @@ namespace Grafika_lab_4
             }
         }
 
-
-
-
-
-
-        #endregion
-
         private void CombobBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (ShadingCombobBox == sender)
             {
-                PhongShading = ShadingCombobBox.SelectedIndex==0;
-            }else if(LightningComboBox==sender)
+                PhongShading = ShadingCombobBox.SelectedIndex == 0;
+            }
+            else if (LightningComboBox == sender)
             {
                 PhongLightinngModel = LightningComboBox.SelectedIndex == 0;
             }
-
-
         }
-
     }
 }

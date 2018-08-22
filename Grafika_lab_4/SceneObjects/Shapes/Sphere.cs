@@ -112,6 +112,10 @@ namespace Grafika_lab_4.SceneObjects
 
         public override void Render(Matrix4 viewMatrix, Matrix4 projectionMatrix, List<Light> lights, bool PhongLightningModel, bool PhongShading)
         {
+            renderer.SetModelMatrix(ModelMatrix);
+            renderer.SetProjectionMatrix(projectionMatrix);
+            renderer.SetViewMatrix(viewMatrix);
+            renderer.SetLights(lights);
             renderer.SetHasTexture(Texture != null);
             renderer.SetAmbientColor(Color);
             renderer.SetDiffuseColor(Color);

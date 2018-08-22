@@ -92,6 +92,8 @@ namespace Grafika_lab_4.SceneObjects
         public override void Render(Matrix4 viewMatrix, Matrix4 projectionMatrix, List<Light> lights, bool PhongLightningModel, bool PhongShading)
         {
             renderer.Use();
+            renderer.SetViewMatrix(viewMatrix);
+            renderer.SetProjectionMatrix(projectionMatrix);
             renderer.EnableVertexAttribArrays();
             GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
             renderer.DisableVertexAttribArrays();
@@ -101,7 +103,5 @@ namespace Grafika_lab_4.SceneObjects
         {
 
         }
-
-
     }
 }

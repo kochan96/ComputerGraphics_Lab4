@@ -28,7 +28,10 @@ namespace Grafika_lab_4.SceneObjects
             Translate(-oldPosition);
             var keyboard = OpenTK.Input.Keyboard.GetState();
             if (keyboard.IsKeyDown(OpenTK.Input.Key.W))
+            {
                 Speed += accelerate;
+            }
+
             if (keyboard.IsKeyDown(OpenTK.Input.Key.S))
             {
                 Speed -= accelerate;

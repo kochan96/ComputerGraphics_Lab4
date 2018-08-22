@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK;
+using OpenTK.Graphics.OpenGL4;
 using System;
 
 namespace Grafika_lab_4.Renderers
@@ -19,7 +20,9 @@ namespace Grafika_lab_4.Renderers
                     lock (syncRoot)
                     {
                         if (instance == null)
+                        {
                             instance = new SkyBoxRenderer();
+                        }
                     }
                 }
                 return instance;
@@ -32,12 +35,10 @@ namespace Grafika_lab_4.Renderers
         #endregion
 
         #region UniformLocations
-        int ModelMatrixLocation;
         int ViewMatrixLocation;
         int ProjectionMatrixLocation;
         int SamplerCubeLocation;
         #endregion
-
 
         public override void EnableVertexAttribArrays()
         {
@@ -56,11 +57,19 @@ namespace Grafika_lab_4.Renderers
 
         protected override void SetUniformsLocations()
         {
-            ModelMatrixLocation = GetUniformLocation("ModelMatrix");
             ViewMatrixLocation = GetUniformLocation("ViewMatrix");
             ProjectionMatrixLocation = GetUniformLocation("ProjectionMatrix");
             SamplerCubeLocation = GetUniformLocation("CubeMap");
         }
 
+        public void SetViewMatrix(Matrix4 viewMatrix)
+        {
+            GL.UniformMatrix4(ViewMatrixLocation, false, ref viewMatrix);
+        }
+
+        public void SetProjectionMatrix(Matrix4 projMatrix)
+        {
+            GL.UniformMatrix4(ProjectionMatrixLocation, false, ref projMatrix);
+        }
     }
 }

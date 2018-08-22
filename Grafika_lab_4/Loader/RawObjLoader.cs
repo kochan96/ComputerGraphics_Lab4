@@ -14,7 +14,7 @@ namespace Grafika_lab_4.Loader
         {
             if (!File.Exists(filePath))
             {
-                MessageBox.Show(Errors.GetErrorMessage(ErrorType.FileMissingError) + filePath);
+                MessageBox.Show("Could not load obj" + filePath);
                 return null;
             }
             StreamReader sr = null;
@@ -77,9 +77,13 @@ namespace Grafika_lab_4.Loader
                                 obj.Meshes.Add(tmpMesh);
 
                                 if (currentLine.Length > 1)
+                                {
                                     meshname = currentLine[1];
+                                }
                                 else
+                                {
                                     meshname = "none";
+                                }
                             }
                         }
                     }
@@ -145,8 +149,12 @@ namespace Grafika_lab_4.Loader
                                 ++i;
 
                                 foreach (var m in obj.Meshes)
+                                {
                                     if (m.MeshName == tmpMesh.MeshName)
+                                    {
                                         continue;
+                                    }
+                                }
 
                                 break;
                             }
@@ -201,7 +209,7 @@ namespace Grafika_lab_4.Loader
             }
             catch (Exception ex)
             {
-                MessageBox.Show(Errors.GetErrorMessage(ErrorType.LoadModelError) + ex.Message);
+                MessageBox.Show("Could not load model" + ex.Message);
                 return null;
             }
 
@@ -212,18 +220,26 @@ namespace Grafika_lab_4.Loader
             int vertex = int.Parse(vertexData[0]) - 1;
             int texture = -1;
             if (vertexData.Length > 1)
+            {
                 texture = int.Parse(vertexData[1]) - 1;
+            }
 
             int normal = -1;
             if (vertexData.Length > 2)
+            {
                 normal = int.Parse(vertexData[2]) - 1;
+            }
 
             indicesList.Add(vertex);
             if (normal != -1)
+            {
                 model.Normals[vertex] = normalsList[normal];
+            }
 
             if (texture != -1)
+            {
                 model.TextureCoordinates[vertex] = texturesList[texture];
+            }
         }
 
         private static List<Material> LoadMaterials(string filePath)
@@ -231,7 +247,7 @@ namespace Grafika_lab_4.Loader
             filePath = Resources.MaterialsFolder + filePath;
             if (!File.Exists(filePath))
             {
-                MessageBox.Show(Errors.GetErrorMessage(ErrorType.FileMissingError) + filePath);
+                MessageBox.Show("Could not load Materials" + filePath);
                 return null;
             }
             StreamReader sr = null;
@@ -382,15 +398,19 @@ namespace Grafika_lab_4.Loader
                 // Test to see if anything was loaded
                 // If not return null
                 if (Materials.Count == 0)
+                {
                     return null;
+                }
                 // If so return list of materials
                 else
+                {
                     return Materials;
+                }
             }
             //if error occured return null
             catch (Exception ex)
             {
-                MessageBox.Show(Errors.GetErrorMessage(ErrorType.ParseMaterialError) + ex.Message);
+                MessageBox.Show("Could not parse material file" + ex.Message);
                 return null;
             }
         }

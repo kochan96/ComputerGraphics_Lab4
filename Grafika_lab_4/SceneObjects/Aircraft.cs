@@ -36,14 +36,17 @@ namespace Grafika_lab_4.SceneObjects
             {
                 humanControl = value;
                 if (humanControl == false)
+                {
                     Reset();
+                }
                 else
+                {
                     EllipseY = Position.Y;
-
+                }
             }
         }
 
-        protected Light[] light=new Light[2];
+        protected Light[] light = new Light[2];
         public Light[] Light { get { return light; } }
 
         #endregion
@@ -56,7 +59,9 @@ namespace Grafika_lab_4.SceneObjects
                 CreateAircraft(modelFile);
             }
             else
-                MessageBox.Show(Errors.GetErrorMessage(ErrorType.FileMissingError) + modelFile);
+            {
+                MessageBox.Show("Could not find file" + modelFile);
+            }
 
             light[0] = new Light(Name + " rightLight")
             {
@@ -102,12 +107,12 @@ namespace Grafika_lab_4.SceneObjects
             RawObjModel model = RawObjLoader.LoadRawObj(filePath);
             if (model == null)
             {
-                MessageBox.Show(Errors.GetErrorMessage(ErrorType.LoadModelError) + Resources.AircraftModel);
+                MessageBox.Show("Could not load Model" + Resources.AircraftModel);
                 return;
             }
             else if (model.Meshes == null || model.Meshes.Count == 0)
             {
-                MessageBox.Show(Errors.GetErrorMessage(ErrorType.LoadedEmptyModelError) + Resources.AircraftModel);
+                MessageBox.Show("Loaded model is empty" + Resources.AircraftModel);
                 return;
             }
 
@@ -118,9 +123,9 @@ namespace Grafika_lab_4.SceneObjects
                 indices.AddRange(mesh.Indices);
             }
             RawModel = model;
-            SetVerticesBuffer(model.Vertices.ToArray(),renderer.PositonLocation);
+            SetVerticesBuffer(model.Vertices.ToArray(), renderer.PositonLocation);
             SetIndicesBuffer(indices.ToArray());
-            SetNormalsBuffer(model.Normals.ToArray(),renderer.NormalLocation);
+            SetNormalsBuffer(model.Normals.ToArray(), renderer.NormalLocation);
 
             UnBind();
         }
@@ -131,6 +136,7 @@ namespace Grafika_lab_4.SceneObjects
             {
                 int offset = 0;
                 renderer.Use();
+                renderer.SetLights(lights);
                 renderer.SetProjectionMatrix(projectionMatrix);
                 renderer.SetViewMatrix(viewMatrix);
                 renderer.SetModelMatrix(ModelMatrix);
@@ -157,11 +163,11 @@ namespace Grafika_lab_4.SceneObjects
         /// </summary>
         public float Semimajor { get; set; }
 
-        
+
 
         public override void Update(float deltatime)
         {
-           
+
             Vector3 position = HumanControl ? UpdateHuman(deltatime) : Ellipse(deltatime);
             HandleLights(position);
         }
@@ -182,7 +188,10 @@ namespace Grafika_lab_4.SceneObjects
         {
             var keyboard = OpenTK.Input.Keyboard.GetState();
             if (keyboard.IsKeyDown(OpenTK.Input.Key.W))
+            {
                 Speed += accelerate;
+            }
+
             if (keyboard.IsKeyDown(OpenTK.Input.Key.S))
             {
                 Speed -= accelerate;
@@ -209,7 +218,7 @@ namespace Grafika_lab_4.SceneObjects
         protected void HandleLights(Vector3 position)
         {
             var state = OpenTK.Input.Keyboard.GetState();
-            if (offset<= maxOffset && state.IsKeyDown(OpenTK.Input.Key.R))
+            if (offset <= maxOffset && state.IsKeyDown(OpenTK.Input.Key.R))
             {
                 offset += offsetChange;
             }
@@ -232,10 +241,10 @@ namespace Grafika_lab_4.SceneObjects
                 lightsOn = !lightsOn;
             }
 
-            light[0].Position = position+ Right * 2f;
+            light[0].Position = position + Right * 2f;
             light[0].Direction = (Forward + offset * Right).Normalized();
 
-            light[1].Position = position- Right * 2f;
+            light[1].Position = position - Right * 2f;
             light[1].Direction = (Forward + offset * Right).Normalized();
         }
 
@@ -253,7 +262,10 @@ namespace Grafika_lab_4.SceneObjects
             Translate(-oldPosition);
             var keyboard = OpenTK.Input.Keyboard.GetState();
             if (keyboard.IsKeyDown(OpenTK.Input.Key.W))
+            {
                 HumanControlSpeed += accelerateHuman;
+            }
+
             if (keyboard.IsKeyDown(OpenTK.Input.Key.S))
             {
                 HumanControlSpeed -= accelerateHuman;

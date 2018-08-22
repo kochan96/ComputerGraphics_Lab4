@@ -1,14 +1,16 @@
-﻿using Grafika_lab_4.Configuration;
+﻿using Grafika_lab_4.Lights;
+using Grafika_lab_4.Renderers.Structs;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
 
 namespace Grafika_lab_4.Renderers
 {
     public class EntityRenderer : Renderer
     {
         #region Singleton
-        private EntityRenderer():base(Properties.Resources.entityVert,Properties.Resources.entityFrag,"EntityShader") { }
+        private EntityRenderer() : base(Properties.Resources.entityVert, Properties.Resources.entityFrag, "EntityShader") { }
         private static volatile EntityRenderer instance;
         private static object syncRoot = new Object();
 
@@ -21,7 +23,9 @@ namespace Grafika_lab_4.Renderers
                     lock (syncRoot)
                     {
                         if (instance == null)
+                        {
                             instance = new EntityRenderer();
+                        }
                     }
                 }
                 return instance;
@@ -47,8 +51,8 @@ namespace Grafika_lab_4.Renderers
         int ViewMatrixLocation;
         int ProjectionMatrixLocation;
         int ModelMatrixLocation;
+        readonly List<LightLocation> lightsLocation = new List<LightLocation>();
         #endregion
-
 
 
         protected override void SetAttributesLocations()
@@ -65,6 +69,25 @@ namespace Grafika_lab_4.Renderers
             SpecularColorLocation = GetUniformLocation("SpecularColor");
             SpecularExponentLocation = GetUniformLocation("SpecularExponent");
             HasTextureLocation = GetUniformLocation("HasTexture");
+            ViewMatrixLocation = GetUniformLocation("ViewMatrix");
+            ProjectionMatrixLocation = GetUniformLocation("ProjectionMatrix");
+            ModelMatrixLocation = GetUniformLocation("ModelMatrix");
+            for (int i = 0; i < MaxLight; i++)
+            {
+                var lightLocation = new LightLocation
+                {
+                    PositionLocation = GetUniformLocation($"Lights[{i}].Position"),
+                    AttenuationLocation = GetUniformLocation($"Lights[{i}].Attenuation"),
+                    ColorLocation = GetUniformLocation($"Lights[{i}].Color"),
+                    DirectionLocation = GetUniformLocation($"Lights[{i}].Direction"),
+                    SpecularIntensityLocation = GetUniformLocation($"Lights[{i}].SpecularIntensity"),
+                    AmbientIntensityLocation = GetUniformLocation($"Lights[{i}].AmbientIntensity"),
+                    DiffuseIntensityLocation = GetUniformLocation($"Lights[{i}].DiffuseIntensity"),
+                    ConeAngleLocation = GetUniformLocation($"Lights[{i}].ConeAngle"),
+                    TypeLocation = GetUniformLocation($"Lights[{i}].LightType"),
+                };
+                lightsLocation.Add(lightLocation);
+            }
         }
 
         public override void EnableVertexAttribArrays()
@@ -80,7 +103,6 @@ namespace Grafika_lab_4.Renderers
             GL.DisableVertexAttribArray(TextureCoordLocation);
             GL.DisableVertexAttribArray(NormalLocation);
         }
-
 
         public void SetAmbientColor(Vector3 color)
         {
@@ -105,19 +127,40 @@ namespace Grafika_lab_4.Renderers
 
         public void SetViewMatrix(Matrix4 viewMatrix)
         {
-            GL.UniformMatrix4(ViewMatrixLocation,false, ref viewMatrix);
+            GL.UniformMatrix4(ViewMatrixLocation, false, ref viewMatrix);
         }
 
         public void SetProjectionMatrix(Matrix4 projMatrix)
         {
-            GL.UniformMatrix4(ViewMatrixLocation, false, ref projMatrix);
+            GL.UniformMatrix4(ProjectionMatrixLocation, false, ref projMatrix);
         }
 
         public void SetModelMatrix(Matrix4 modelMatrix)
         {
-            GL.UniformMatrix4(ViewMatrixLocation, false, ref modelMatrix);
+            GL.UniformMatrix4(ModelMatrixLocation, false, ref modelMatrix);
+        }
+
+        public void SetLights(List<Light> lights)
+        {
+            for (int i = 0; i < MaxLight; i++)
+            {
+                var light = new Light(string.Empty);
+                if (lights.Count > i)
+                {
+                    light = lights[i];
+                }
+
+                GL.Uniform3(lightsLocation[i].PositionLocation, ref light.Position);
+                GL.Uniform3(lightsLocation[i].AttenuationLocation, ref light.Attenuation);
+                GL.Uniform3(lightsLocation[i].ColorLocation, ref light.Color);
+                GL.Uniform3(lightsLocation[i].DirectionLocation, ref light.Direction);
+                GL.Uniform1(lightsLocation[i].SpecularIntensityLocation, light.SpecularIntensity);
+                GL.Uniform1(lightsLocation[i].AmbientIntensityLocation, light.AmbientIntensity);
+                GL.Uniform1(lightsLocation[i].DiffuseIntensityLocation, light.DiffuseIntensity);
+                GL.Uniform1(lightsLocation[i].ConeAngleLocation, light.ConeAngle);
+                GL.Uniform1(lightsLocation[i].TypeLocation, (int)light.LightType);
+            }
         }
     }
-
 }
 

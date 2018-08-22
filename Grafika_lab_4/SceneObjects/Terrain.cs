@@ -40,7 +40,9 @@ namespace Grafika_lab_4.SceneObjects
                 vertexCountX = heightMap.Width;
                 vertexCountY = heightMap.Height;
                 if (normalMap != null)
+                {
                     normalMap = new Bitmap(normalMap, heightMap.Size);
+                }
             }
             else if (normalMap != null)
             {
@@ -71,16 +73,22 @@ namespace Grafika_lab_4.SceneObjects
         private void CheckVertexCount()
         {
             if (vertexCountX < 2)
+            {
                 throw new Exception("VertexCountX in Terrain can not be less than two");
+            }
 
             if (vertexCountY < 2)
+            {
                 throw new Exception("VertexCountY in Terrain can not be less than two");
+            }
         }
 
         private Bitmap LoadBitmap(string fileName)
         {
             if (String.IsNullOrEmpty(fileName))
+            {
                 return null;
+            }
 
             try
             {
@@ -103,9 +111,13 @@ namespace Grafika_lab_4.SceneObjects
             Vector2[] textcoord = CreateTextureCoordinates(vertices);
             Vector3[] normals;
             if (normalMap != null)
+            {
                 normals = CreateNormals(normalMap,vertices);
+            }
             else
+            {
                 normals = CreateNormals(vertices, indices);
+            }
 
             Bind();
             SetVerticesBuffer(vertices,renderer.PositionLocation);
@@ -138,7 +150,9 @@ namespace Grafika_lab_4.SceneObjects
         private float GetHeight(Bitmap bmp, int x, int y)
         {
             if (bmp == null || x < 0 || x >= bmp.Height || y < 0 || y >= bmp.Width)
+            {
                 return 0.0f;
+            }
 
             Color pixel = bmp.GetPixel(x, y);
             float value = pixel.R * pixel.G * pixel.B;
@@ -226,10 +240,14 @@ namespace Grafika_lab_4.SceneObjects
             int nextY = index + vertexCountX;
 
             if (nextX % vertexCountX == 0)
+            {
                 nextX -= vertexCountX;
+            }
 
             if (nextY >= vertexCountX * vertexCountY)
+            {
                 nextY = 0;
+            }
 
             dhx = vertices[nextX].Z - vertices[index].Z;
             dhy = vertices[nextY].Z - vertices[index].Z;
@@ -276,6 +294,10 @@ namespace Grafika_lab_4.SceneObjects
         public override void Render(Matrix4 viewMatrix, Matrix4 projectionMatrix, List<Light> lights, bool PhongLightningModel, bool PhongShading)
         {
             renderer.Use();
+            renderer.SetModelMatrix(ModelMatrix);
+            renderer.SetProjectionMatrix(projectionMatrix);
+            renderer.SetViewMatrix(viewMatrix);
+            renderer.SetLights(lights);
             renderer.EnableVertexAttribArrays();
             GL.DrawElements(BeginMode.TriangleStrip, indicesCount, DrawElementsType.UnsignedInt, 0);
             renderer.DisableVertexAttribArrays();

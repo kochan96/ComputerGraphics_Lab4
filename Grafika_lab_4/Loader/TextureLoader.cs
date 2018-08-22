@@ -18,9 +18,9 @@ namespace Grafika_lab_4.Loader
             {
                 image = new Bitmap(fileName);
             }
-            catch (Exception ex)
+            catch
             {
-                MessageBox.Show(Errors.GetErrorMessage(ErrorType.LoadTextureError) + fileName);
+                MessageBox.Show("Could not load texture" + fileName);
                 return null;
             }
             int texID = GL.GenTexture();
@@ -57,13 +57,13 @@ namespace Grafika_lab_4.Loader
                 {
                     image = new Bitmap(FileNames[i]);
                 }
-                catch (Exception ex)
+                catch
                 {
-                    MessageBox.Show(Errors.GetErrorMessage(ErrorType.LoadTextureError) + FileNames[i]);
+                    MessageBox.Show("Could not load texture:" + FileNames[i]);
                     continue;
                 }
 
-                BitmapData data = image.LockBits(new System.Drawing.Rectangle(0, 0, image.Width, image.Height),
+                BitmapData data = image.LockBits(new Rectangle(0, 0, image.Width, image.Height),
                 ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, PixelInternalFormat.Rgba, data.Width, data.Height, 0,
                 OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);

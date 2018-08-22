@@ -25,17 +25,34 @@ namespace Grafika_lab_4.SceneObjects.Cameras
         {
             var keyboardState = OpenTK.Input.Keyboard.GetState();
             if (keyboardState.IsKeyDown(OpenTK.Input.Key.S))
+            {
                 Move(0f, -0.1f, 0.0f);
+            }
+
             if (keyboardState.IsKeyDown(OpenTK.Input.Key.W))
+            {
                 Move(0f, 0.1f, 0.0f);
+            }
+
             if (keyboardState.IsKeyDown(OpenTK.Input.Key.A))
+            {
                 Move(-0.1f, 0f, 0.0f);
+            }
+
             if (keyboardState.IsKeyDown(OpenTK.Input.Key.D))
+            {
                 Move(0.1f, 0f, 0.0f);
+            }
+
             if (keyboardState.IsKeyDown(OpenTK.Input.Key.E))
+            {
                 Move(0f, 0.0f, -0.1f);
+            }
+
             if (keyboardState.IsKeyDown(OpenTK.Input.Key.Q))
+            {
                 Move(0f, 0.0f, 0.1f);
+            }
         }
 
         public void Move(float x, float y, float z)

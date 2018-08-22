@@ -51,7 +51,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration\Errors.cs" />
     <Compile Include="ExtensionMethods\Extensions.cs" />
     <Compile Include="Loader\Material.cs" />
     <Compile Include="Loader\Mesh.cs" />
