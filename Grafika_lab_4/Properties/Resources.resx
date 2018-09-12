@@ -117,23 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="entityFrag" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Shaders\entity.frag;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="entityVert" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Shaders\entity.vert;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="skyboxFrag" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Shaders\skybox.frag;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="SkyboxVert" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Shaders\skybox.vert;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="terrain1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Shaders\terrain.vert;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="terrainFrag" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Shaders\terrain.frag;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
 </root>

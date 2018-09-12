@@ -2,19 +2,17 @@
 
 namespace Grafika_lab_4.SceneObjects.Cameras
 {
-    public abstract class Camera
+    public class Camera
     {
-        public Camera(string name)
-        {
-            Name = name;
-        }
+        public bool IsActive { get; set; }
 
-        public bool IsActive { get; set;}
-        public string Name { get; set;}
-        public abstract Vector3 CameraPosition { get; set;}
-        public abstract Vector3 CameraTarget { get; set; }
-        public abstract Vector3 CameraUp { get; set; }
-        public  Matrix4 GetViewMatrix()
+        public Vector3 CameraPosition { get; set; } = Vector3.Zero;
+
+        public Vector3 CameraTarget { get; set; } = Vector3.Zero;
+
+        public Vector3 CameraUp { get; set; } = Vector3.UnitY;
+
+        public Matrix4 GetViewMatrix()
         {
             /*Vector3 zaxis = (CameraPosition - CameraTarget).Normalized();    // The "forward" vector.
             Vector3 xaxis = Vector3.Cross(CameraUp, zaxis).Normalized();// The "right" vector.
@@ -32,6 +30,7 @@ namespace Grafika_lab_4.SceneObjects.Cameras
             return Matrix4.LookAt(CameraPosition, CameraTarget, CameraUp);
         }
 
-        public abstract void Update();
+        public virtual void Update()
+        { }
     }
 }

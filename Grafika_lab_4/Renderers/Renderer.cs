@@ -2,47 +2,33 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 
 namespace Grafika_lab_4.Renderers
 {
     public abstract class Renderer
     {
-        #region Properties
-        int ProgramID;
-        string Name;//for debug
+        private readonly int _programId;
         protected const int MaxLight = 5;
-        #endregion
 
-        #region Constructors
-
-        public Renderer(byte[] VertexShader, byte[] FragmentShader, string name)
+        public Renderer(string vertexShaderFilePath, string fragmentShaderFilePath)
         {
-            Name = name;
-            int vertexShader = CreateShader(VertexShader, ShaderType.VertexShader);
-            int fragmentShader = CreateShader(FragmentShader, ShaderType.FragmentShader);
-            ProgramID = LinkProgram(vertexShader, fragmentShader);
-            SetLocations();
-
+            int vertexShader = CreateShader(vertexShaderFilePath, ShaderType.VertexShader);
+            int fragmentShader = CreateShader(fragmentShaderFilePath, ShaderType.FragmentShader);
+            _programId = LinkProgram(vertexShader, fragmentShader);
+            Sets();
         }
 
-        #endregion
-
-        #region CreateProgramMethods
-        private int CreateShader(byte[] ShaderFile, ShaderType type)
+        private int CreateShader(string shaderFilePath, ShaderType type)
         {
             int shader = GL.CreateShader(type);
             string src = String.Empty;
-            if (ShaderFile == null || ShaderFile.Length == 0)
+            if (string.IsNullOrWhiteSpace(shaderFilePath))
             {
-                Debug.WriteLine($"File is null or empty:{Name}");
+                Debug.WriteLine($"File is null or empty:{shaderFilePath}");
             }
             else
             {
-                using (var reader = new StreamReader(new MemoryStream(ShaderFile)))
-                {
-                    src = reader.ReadToEnd();
-                }
+                src = File.ReadAllText(shaderFilePath);
             }
 
             GL.ShaderSource(shader, src);
@@ -50,7 +36,7 @@ namespace Grafika_lab_4.Renderers
             string info = GL.GetShaderInfoLog(shader);
             if (!string.IsNullOrEmpty(info))
             {
-                Debug.WriteLine($"Shader {Name}: {type} had info log: {info}");
+                Debug.WriteLine($"Shader {shaderFilePath}: {type} had info log: {info}");
             }
 
             return shader;
@@ -72,18 +58,16 @@ namespace Grafika_lab_4.Renderers
 
             return program;
         }
-        #endregion
 
-        #region SetLocations
-        private void SetLocations()
+        private void Sets()
         {
-            SetAttributesLocations();
-            SetUniformsLocations();
+            SetAttributess();
+            SetUniformss();
         }
 
-        protected int GetAttrubuteLocation(string AttributeName)
+        protected int GetAttrubute(string AttributeName)
         {
-            int position = GL.GetAttribLocation(ProgramID, AttributeName);
+            int position = GL.GetAttribLocation(_programId, AttributeName);
             if (position == -1)
             {
                 Debug.WriteLine($"{this}: Could not find attribute of name {AttributeName}");
@@ -92,9 +76,9 @@ namespace Grafika_lab_4.Renderers
             return position;
         }
 
-        protected int GetUniformLocation(string UniformName)
+        protected int GetUniform(string UniformName)
         {
-            int position = GL.GetUniformLocation(ProgramID, UniformName);
+            int position = GL.GetUniformLocation(_programId, UniformName);
             if (position == -1)
             {
                 Debug.WriteLine($"{this}: Could not find uniform of name {UniformName}");
@@ -102,29 +86,23 @@ namespace Grafika_lab_4.Renderers
 
             return position;
         }
-        #endregion
-
-        #region Abstract Methods
 
         public abstract void EnableVertexAttribArrays();
+
         public abstract void DisableVertexAttribArrays();
-        protected abstract void SetAttributesLocations();
-        protected abstract void SetUniformsLocations();
 
-        #endregion
+        protected abstract void SetAttributess();
 
-        #region Methods
+        protected abstract void SetUniformss();
 
         public void Use()
         {
-            GL.UseProgram(ProgramID);
+            GL.UseProgram(_programId);
         }
 
         public void Delete()
         {
-            GL.DeleteProgram(ProgramID);
+            GL.DeleteProgram(_programId);
         }
-
-        #endregion
     }
 }

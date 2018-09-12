@@ -2,63 +2,44 @@
 {
     public static class Resources
     {
-        readonly static string ResourcesFolder = "Resources/";
-        #region Shaders
-        public readonly static string ShadersFolder = ResourcesFolder + "Shaders/";
+        static readonly string ResourcesFolder = "Resources";
+        public static readonly string ShadersFolder = $"{ResourcesFolder}/Shaders";
 
-        public readonly static string AircraftVertexShader = ShadersFolder + "entity.vert";
-        public readonly static string AircraftFragmentShader = ShadersFolder + "entity.frag";
-        public readonly static string TerrainVertexShader = ShadersFolder + "terrain.vert";
-        public readonly static string TerrainFragmentShader = ShadersFolder + "terrain.frag";
-        public readonly static string StaticVertexShader = ShadersFolder + "sphere.vert";
-        public readonly static string StaticFragmentShader = ShadersFolder + "sphere.frag";
-        public readonly static string SkyBoxVertexShader = ShadersFolder + "skybox.vert";
-        public readonly static string SkyBoxFragmentShader = ShadersFolder + "skybox.frag";
-        #endregion
+        public static readonly string EntityVertexShader = $"{ShadersFolder}/entity.vert";
+        public static readonly string EntityFragmentShader = $"{ShadersFolder}/entity.frag";
+        public static readonly string TerrainVertexShader = $"{ShadersFolder}/terrain.vert";
+        public static readonly string TerrainFragmentShader = $"{ShadersFolder}/terrain.frag";
+        public static readonly string SkyBoxVertexShader = $"{ShadersFolder}/skybox.vert";
+        public static readonly string SkyBoxFragmentShader = $"{ShadersFolder}/skybox.frag";
 
-        #region HeightMaps
-        public readonly static string HeightMapsFolder = ResourcesFolder + "HeightMaps/";
+        public static readonly string HeightMapsFolder = $"{ResourcesFolder}/HeightMaps";
 
-        public readonly static string RiverMountainHeightMap = HeightMapsFolder + "RiverMountains.png";
-        public readonly static string MountainsHeightMap = HeightMapsFolder + "Mountains.png";
+        public static readonly string RiverMountainHeightMap = $"{HeightMapsFolder}/RiverMountains.png";
+        public static readonly string MountainsHeightMap = $"{HeightMapsFolder}/Mountains.png";
 
-        #endregion
+        public static readonly string TexturesFolder = $"{ResourcesFolder}/Textures";
 
-        #region Textures
-        public readonly static string TexturesFolder = ResourcesFolder + "Textures/";
+        public static readonly string GreenTexture = $"{TexturesFolder}/GreenTexture.png";
+        public static readonly string RockTexture = $"{TexturesFolder}/RockTexture.png";
+        public static readonly string TestTexture = $"{TexturesFolder}/TestTexture.png";
 
-        public readonly static string GreenTexture = TexturesFolder + "GreenTexture.png";
-        public readonly static string RockTexture = TexturesFolder + "RockTexture.png";
-        public readonly static string TestTexture = TexturesFolder + "TestTexture.png";
-
-        public readonly static string[] SkyCubeMapTextures ={
-            TexturesFolder+"SkyBoxRight.png",
-            TexturesFolder+"SkyBoxLeft.png",
-            TexturesFolder+"SkyBoxTop.png",
-            TexturesFolder+"SkyBoxBottom.png",
-            TexturesFolder+"SkyBoxBack.png",
-            TexturesFolder+"SkyBoxFront.png",
+        public static readonly string[] SkyCubeMapTextures ={
+            $"{TexturesFolder}/SkyBoxRight.png",
+            $"{TexturesFolder}/SkyBoxLeft.png",
+            $"{TexturesFolder}/SkyBoxTop.png",
+            $"{TexturesFolder}/SkyBoxBottom.png",
+            $"{TexturesFolder}/SkyBoxBack.png",
+            $"{TexturesFolder}/SkyBoxFront.png",
         };
 
-        public readonly static string TreeTexture = TexturesFolder + "Tree.png";
-        public static readonly string SphereTexture = TexturesFolder + "SphereTexture.png";
-        #endregion
+        public static readonly string TreeTexture = $"{TexturesFolder}/Tree.png";
+        public static readonly string SphereTexture = $"{TexturesFolder}/SphereTexture.png";
 
-        #region Models
+        public static readonly string ModelsFolder = $"{ResourcesFolder}/Models";
 
-        public readonly static string ModelsFolder = ResourcesFolder + "Models/";
+        public static readonly string AircraftModel = $"{ModelsFolder}/Aircraft.obj";
+        public static readonly string TreeModel = $"{ModelsFolder}/Tree.obj";
 
-        public readonly static string AircraftModel = ModelsFolder + "Aircraft.obj";
-
-        public readonly static string TreeModel = ModelsFolder + "Tree.obj";
-        #endregion
-
-        #region Materials
-        public readonly static string MaterialsFolder = ResourcesFolder + "Materials/";
-
-
-        #endregion
-
-
+        public static readonly string MaterialsFolder = $"{ResourcesFolder}/Materials";
     }
 }

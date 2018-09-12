@@ -3,29 +3,22 @@ using Grafika_lab_4.Renderers;
 using Grafika_lab_4.SceneObjects.Base;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
-using System;
 using System.Collections.Generic;
 
 namespace Grafika_lab_4.SceneObjects
 {
     public class SkyBox : RenderSceneObject
     {
-        int vertexCount=36;
-        float Size;
-        public SkyBox(string name,float Size=105) : base(name)
+        private const int _vertexCount = 36;
+        private readonly float _size;
+        private readonly SkyBoxRenderer renderer = SkyBoxRenderer.Instance;
+
+        public SkyBox(float Size = 105)
         {
-            this.Size = Size;
-            CreateSkyBox();
-        }
-
-        SkyBoxRenderer renderer = SkyBoxRenderer.Instance;
-
-
-        private void CreateSkyBox()
-        {
+            _size = Size;
             Vector3[] vertices = CreateVertices();
             Bind();
-            SetVerticesBuffer(vertices,renderer.PositionLocation);
+            SetVerticesBuffer(vertices, renderer.PositionAttribute);
             UnBind();
         }
 
@@ -33,47 +26,47 @@ namespace Grafika_lab_4.SceneObjects
         {
             return new Vector3[]
             {
-               new Vector3(-Size, -Size, -Size),
-               new Vector3(-Size, -Size, Size),
-               new Vector3(-Size, Size, -Size),
-               new Vector3(-Size, Size, -Size),
-               new Vector3(-Size, -Size, Size),
-               new Vector3(-Size, Size, Size),
+               new Vector3(-_size, -_size, -_size),
+               new Vector3(-_size, -_size, _size),
+               new Vector3(-_size, _size, -_size),
+               new Vector3(-_size, _size, -_size),
+               new Vector3(-_size, -_size, _size),
+               new Vector3(-_size, _size, _size),
 
-               new Vector3(Size, -Size, -Size),
-               new Vector3(Size, Size, -Size),
-               new Vector3(Size, -Size, Size),
-               new Vector3(Size, -Size, Size),
-               new Vector3(Size, Size, -Size),
-               new Vector3(Size, Size, Size),
+               new Vector3(_size, -_size, -_size),
+               new Vector3(_size, _size, -_size),
+               new Vector3(_size, -_size, _size),
+               new Vector3(_size, -_size, _size),
+               new Vector3(_size, _size, -_size),
+               new Vector3(_size, _size, _size),
 
-               new Vector3(-Size, -Size, -Size),
-               new Vector3(Size, -Size, -Size),
-               new Vector3(-Size, -Size, Size),
-               new Vector3(-Size, -Size, Size),
-               new Vector3(Size, -Size, -Size),
-               new Vector3(Size, -Size, Size),
+               new Vector3(-_size, -_size, -_size),
+               new Vector3(_size, -_size, -_size),
+               new Vector3(-_size, -_size, _size),
+               new Vector3(-_size, -_size, _size),
+               new Vector3(_size, -_size, -_size),
+               new Vector3(_size, -_size, _size),
 
-               new Vector3(-Size, Size, -Size),
-               new Vector3(-Size, Size, Size),
-               new Vector3(Size, Size, -Size),
-               new Vector3(Size, Size, -Size),
-               new Vector3(-Size, Size, Size),
-               new Vector3(Size, Size, Size),
+               new Vector3(-_size, _size, -_size),
+               new Vector3(-_size, _size, _size),
+               new Vector3(_size, _size, -_size),
+               new Vector3(_size, _size, -_size),
+               new Vector3(-_size, _size, _size),
+               new Vector3(_size, _size, _size),
 
-               new Vector3(-Size, -Size, -Size),
-               new Vector3(-Size, Size, -Size),
-               new Vector3(Size, -Size, -Size),
-               new Vector3(Size, -Size, -Size),
-               new Vector3(-Size, Size, -Size),
-               new Vector3(Size, Size, -Size),
+               new Vector3(-_size, -_size, -_size),
+               new Vector3(-_size, _size, -_size),
+               new Vector3(_size, -_size, -_size),
+               new Vector3(_size, -_size, -_size),
+               new Vector3(-_size, _size, -_size),
+               new Vector3(_size, _size, -_size),
 
-               new Vector3(-Size, -Size, Size),
-               new Vector3(Size, -Size, Size),
-               new Vector3(-Size, Size, Size),
-               new Vector3(-Size, Size, Size),
-               new Vector3(Size, -Size, Size),
-               new Vector3(Size, Size, Size),
+               new Vector3(-_size, -_size, _size),
+               new Vector3(_size, -_size, _size),
+               new Vector3(-_size, _size, _size),
+               new Vector3(-_size, _size, _size),
+               new Vector3(_size, -_size, _size),
+               new Vector3(_size, _size, _size),
             };
         }
 
@@ -95,13 +88,12 @@ namespace Grafika_lab_4.SceneObjects
             renderer.SetViewMatrix(viewMatrix);
             renderer.SetProjectionMatrix(projectionMatrix);
             renderer.EnableVertexAttribArrays();
-            GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, _vertexCount);
             renderer.DisableVertexAttribArrays();
         }
 
         public override void Update(float deltatime)
         {
-
         }
     }
 }

@@ -7,77 +7,73 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using Grafika_lab_4.Configuration;
+using Grafika_lab_4.Loader;
 
 namespace Grafika_lab_4.SceneObjects
 {
     public class Terrain : RenderSceneObject
     {
+        private readonly float MAX_PIXEL_COLOR = 256 * 256 * 256;
+        private int _vertexCountX;
+        private int _vertexCountY;
 
-        #region Fields
-        readonly float MAX_PIXEL_COLOR = 256 * 256 * 256;
-        int vertexCountX;
-        int vertexCountY;
-        TerrainRenderer renderer = TerrainRenderer.Instance;
+        private readonly EntityRenderer renderer = EntityRenderer.Instance;
 
-        /*protected override Vector3 DefaultForward { get { return Vector3.UnitY; } }
-        protected override Vector3 DefaultUp { get { return Vector3.UnitZ; } }
-        protected override Vector3 DefaultRight { get { return Vector3.UnitX; } }*/
+        private int _indicesCount;
 
-
-        private int indicesCount;
-        #endregion
-
-
-        #region Constructors
-
-        public Terrain(string name,string HeightMap, string NormalMap = ""):base(name)
+        public Terrain(string HeightMap, string NormalMap = "")
         {
             Bitmap heightMap = LoadBitmap(HeightMap);
             Bitmap normalMap = LoadBitmap(NormalMap);
-
-            if (heightMap != null)
             {
-                vertexCountX = heightMap.Width;
-                vertexCountY = heightMap.Height;
+                SetVerticesCount(heightMap, normalMap);
+                CheckVertexCount();
+                GenerateBuffers();
+                CreateTerrain(heightMap, normalMap);
+            }
+        }
+
+        public Terrain(int vertexCountX, int vertexCountY)
+        {
+            _vertexCountX = vertexCountX;
+            _vertexCountY = vertexCountY;
+            CheckVertexCount();
+            GenerateBuffers();
+            CreateTerrain();
+        }
+
+        private void SetVerticesCount(Bitmap heightBitmap, Bitmap normalMap)
+        {
+            if (heightBitmap != null)
+            {
+                _vertexCountX = heightBitmap.Width;
+                _vertexCountY = heightBitmap.Height;
                 if (normalMap != null)
                 {
-                    normalMap = new Bitmap(normalMap, heightMap.Size);
+                    normalMap = new Bitmap(normalMap, heightBitmap.Size);
                 }
             }
             else if (normalMap != null)
             {
-                vertexCountX = normalMap.Width;
-                vertexCountY = normalMap.Height;
+                _vertexCountX = normalMap.Width;
+                _vertexCountY = normalMap.Height;
             }
             else
             {
-                vertexCountX = 10;
-                vertexCountY = 10;
+                _vertexCountX = 10;
+                _vertexCountY = 10;
             }
-            CheckVertexCount();
-            GenerateBuffers();
-            CreateTerrain(heightMap, normalMap);
-        }
-
-        public Terrain(string name,int vertexCount) : this(name,vertexCount, vertexCount) { }
-
-        public Terrain(string name,int vertexCountX, int vertexCountY):base(name)
-        {
-            this.vertexCountX = vertexCountX;
-            this.vertexCountY = vertexCountY;
-            CheckVertexCount();
-            GenerateBuffers();
-            CreateTerrain(null, null);
         }
 
         private void CheckVertexCount()
         {
-            if (vertexCountX < 2)
+            if (_vertexCountX < 2)
             {
                 throw new Exception("VertexCountX in Terrain can not be less than two");
             }
 
-            if (vertexCountY < 2)
+            if (_vertexCountY < 2)
             {
                 throw new Exception("VertexCountY in Terrain can not be less than two");
             }
@@ -100,45 +96,32 @@ namespace Grafika_lab_4.SceneObjects
                 return null;
             }
         }
-        #endregion
 
-
-
-        private void CreateTerrain(Bitmap heightmap, Bitmap normalMap)
+        private void CreateTerrain(Bitmap heightmap = null, Bitmap normalMap = null)
         {
             Vector3[] vertices = CreateVertices(heightmap);
             int[] indices = CreateIndices();
             Vector2[] textcoord = CreateTextureCoordinates(vertices);
-            Vector3[] normals;
-            if (normalMap != null)
-            {
-                normals = CreateNormals(normalMap,vertices);
-            }
-            else
-            {
-                normals = CreateNormals(vertices, indices);
-            }
+            Vector3[] normals = normalMap != null ? CreateNormals(normalMap, vertices) : CreateNormals(vertices, indices);
 
             Bind();
-            SetVerticesBuffer(vertices,renderer.PositionLocation);
+            SetVerticesBuffer(vertices, renderer.PositionAttribute);
             SetIndicesBuffer(indices);
-            SetTextureBuffer(textcoord,renderer.TextureCoordLocation);
-            SetNormalsBuffer(normals,renderer.NormalLocation);
+            SetTextureBuffer(textcoord, renderer.TextureCoordAttribute);
+            SetNormalsBuffer(normals, renderer.NormalAttribute);
 
             UnBind();
         }
-
-        #region Vertices
         private Vector3[] CreateVertices(Bitmap bmp)
         {
 
-            Vector3[] vertices = new Vector3[vertexCountX * vertexCountY];
-            float spacingX = 2 / (float)(vertexCountX - 1);
-            float spacingY = 2 / (float)(vertexCountY - 1);
+            Vector3[] vertices = new Vector3[_vertexCountX * _vertexCountY];
+            float spacingX = 2 / (float)(_vertexCountX - 1);
+            float spacingY = 2 / (float)(_vertexCountY - 1);
             int index = 0;
-            for (int i = 0; i < vertexCountY; i++)
+            for (int i = 0; i < _vertexCountY; i++)
             {
-                for (int j = 0; j < vertexCountX; j++)
+                for (int j = 0; j < _vertexCountX; j++)
                 {
                     vertices[index] = new Vector3(-1 + j * spacingX, -1 + i * spacingY, GetHeight(bmp, j, i));
                     index++;
@@ -161,34 +144,29 @@ namespace Grafika_lab_4.SceneObjects
             return value;
         }
 
-
-
-        #endregion
-
-        #region Indices
         private int[] CreateIndices()
         {
-            indicesCount = 2 * vertexCountX + (2 * vertexCountX + 2) * (vertexCountY - 2);
-            int[] indices = new int[indicesCount];
+            _indicesCount = 2 * _vertexCountX + (2 * _vertexCountX + 2) * (_vertexCountY - 2);
+            int[] indices = new int[_indicesCount];
             int index = 0;
             bool finish = false;
             for (int i = 0; !finish;)
             {
-                for (int j = 0; j < vertexCountX; j++)
+                for (int j = 0; j < _vertexCountX; j++)
                 {
                     //fragment of strip (bottom->up)
-                    int vertex = i * vertexCountX + j;
+                    int vertex = i * _vertexCountX + j;
                     indices[index++] = vertex;
-                    indices[index++] = vertex + vertexCountX;
+                    indices[index++] = vertex + _vertexCountX;
                 }
 
                 i = i + 1;
 
-                if (i < vertexCountY - 1)//if not last row
+                if (i < _vertexCountY - 1)//if not last row
                 {
                     //repeat last vertex of this strip and first vertex of next row
-                    indices[index++] = (i + 1) * vertexCountX - 1;
-                    indices[index++] = i * vertexCountX;
+                    indices[index++] = (i + 1) * _vertexCountX - 1;
+                    indices[index++] = i * _vertexCountX;
                 }
                 else
                 {
@@ -199,10 +177,6 @@ namespace Grafika_lab_4.SceneObjects
             return indices;
         }
 
-
-        #endregion
-
-        #region Texture
         private Vector2[] CreateTextureCoordinates(Vector3[] vertices)
         {
             Vector2[] textcoord = new Vector2[vertices.Length];
@@ -214,37 +188,33 @@ namespace Grafika_lab_4.SceneObjects
             return textcoord;
         }
 
-        #endregion
-
-        #region Normals
         private Vector3[] CreateNormals(Vector3[] vertices, int[] indices)
         {
             Vector3[] normals = new Vector3[vertices.Length];
 
-            int Xmax = vertexCountX;
-            int YMax = vertexCountY;
+            int Xmax = _vertexCountX;
+            int YMax = _vertexCountY;
             for (int i = 0; i < normals.Length; i++)
             {
                 GetDisorder(vertices, i, out float dhx, out float dhy);
                 normals[i] = Vector3.UnitZ + Vector3.UnitX * dhx + Vector3.UnitY * dhy;
-                //normals[i] = Vector3.UnitZ;
                 normals[i] = normals[i].Normalized();
             }
 
             return normals;
         }
 
-        private void GetDisorder(Vector3[] vertices,int index,out float dhx,out float dhy)
+        private void GetDisorder(Vector3[] vertices, int index, out float dhx, out float dhy)
         {
             int nextX = index + 1;
-            int nextY = index + vertexCountX;
+            int nextY = index + _vertexCountX;
 
-            if (nextX % vertexCountX == 0)
+            if (nextX % _vertexCountX == 0)
             {
-                nextX -= vertexCountX;
+                nextX -= _vertexCountX;
             }
 
-            if (nextY >= vertexCountX * vertexCountY)
+            if (nextY >= _vertexCountX * _vertexCountY)
             {
                 nextY = 0;
             }
@@ -253,13 +223,13 @@ namespace Grafika_lab_4.SceneObjects
             dhy = vertices[nextY].Z - vertices[index].Z;
         }
 
-        private Vector3[] CreateNormals(Bitmap normalMap,Vector3[] vertices)
+        private Vector3[] CreateNormals(Bitmap normalMap, Vector3[] vertices)
         {
-            Vector3[] normals = new Vector3[vertexCountX * vertexCountY];
+            Vector3[] normals = new Vector3[_vertexCountX * _vertexCountY];
             int index = 0;
-            for (int i = 0; i < vertexCountY; i++)
+            for (int i = 0; i < _vertexCountY; i++)
             {
-                for (int j = 0; j < vertexCountX; j++)
+                for (int j = 0; j < _vertexCountX; j++)
                 {
                     Color pixel = normalMap.GetPixel(j, i);
                     float half = 256f / 2.0f;
@@ -276,11 +246,8 @@ namespace Grafika_lab_4.SceneObjects
                 }
             }
 
-
             return normals;
         }
-        #endregion
-
 
         protected override void GenerateBuffers()
         {
@@ -298,14 +265,20 @@ namespace Grafika_lab_4.SceneObjects
             renderer.SetProjectionMatrix(projectionMatrix);
             renderer.SetViewMatrix(viewMatrix);
             renderer.SetLights(lights);
+            renderer.SetPhongLightning(PhongLightningModel);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, Texture.TextureId);
+            renderer.SetAmbientColor(Vector3.One);
+            renderer.SetDiffuseColor(Vector3.One);
+            renderer.SetSpecularColor(Vector3.One);
+            renderer.SetHasTexture(Texture != null);
             renderer.EnableVertexAttribArrays();
-            GL.DrawElements(BeginMode.TriangleStrip, indicesCount, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(BeginMode.TriangleStrip, _indicesCount, DrawElementsType.UnsignedInt, 0);
             renderer.DisableVertexAttribArrays();
         }
 
         public override void Update(float deltatime)
         {
-
         }
 
         public override void Dispose()

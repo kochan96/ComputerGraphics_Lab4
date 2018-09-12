@@ -1,29 +1,26 @@
 ﻿using System;
 using Grafika_lab_4.SceneObjects.Base;
-using OpenTK;
 
 namespace Grafika_lab_4.SceneObjects.Cameras
 {
     public class BehindCamera : Camera
     {
-        public override Vector3 CameraPosition { get; set; }
-        public override Vector3 CameraTarget { get; set; }
-        public override Vector3 CameraUp { get; set; }
-        RenderSceneObject follow;
+        private readonly RenderSceneObject _follow;
 
-        public float Dist{get; set;}
+        public float Dist { get; set; }
+
         public float Angle { get; set; }
 
-        public BehindCamera(string name, RenderSceneObject follow) : base(name)
+        public BehindCamera(RenderSceneObject follow)
         {
-            this.follow = follow;
-            CameraTarget = follow.Position;
-            CameraUp = follow.Up;
+            _follow = follow;
+            CameraTarget = _follow.Position;
+            CameraUp = _follow.Up;
         }
         public override void Update()
         {
-            CameraTarget = follow.Position;
-            CameraPosition = CameraTarget - follow.Forward * Dist*(float)Math.Cos(Angle);
+            CameraTarget = _follow.Position;
+            CameraPosition = CameraTarget - _follow.Forward * Dist * (float)Math.Cos(Angle);
             CameraPosition = CameraPosition + CameraUp * Dist * (float)Math.Sin(Angle);
         }
     }

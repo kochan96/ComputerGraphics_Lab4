@@ -1,29 +1,27 @@
-﻿using OpenTK;
+﻿using Grafika_lab_4.Renderers.Structs;
+using OpenTK;
 
 namespace Grafika_lab_4.Lights
 {
     public class Light
     {
+        public Vector3 Position { get; set; }
 
-        public Light(string name)
-        {
-            Name = name;
-            LightType = LightTypes.PointLight;
-        }
-        public string Name { get; }
-        public Vector3 Position;
-        public Vector3 Color;
-        public float DiffuseIntensity;
-        public float AmbientIntensity;
-        public float SpecularIntensity;
+        public Vector3 Color { get; set; }
 
-        public LightTypes LightType;
-        public Vector3 Direction;
-        public float ConeAngle;
-        public Vector3 Attenuation=new Vector3(1,0,0);
+        public float DiffuseIntensity { get; set; }
+
+        public float AmbientIntensity { get; set; }
+
+        public float SpecularIntensity { get; set; }
+
+        public LightTypes LightType { get; set; } = LightTypes.PointLight;
+
+        public Vector3 Direction { get; set; }
+
+        public float ConeAngle { get; set; }
+
+        public Vector3 Attenuation { get; set; } = new Vector3(1, 0, 0);
     }
-
-    public enum LightTypes { PointLight, SpotLight,Directional }
-
 }
 

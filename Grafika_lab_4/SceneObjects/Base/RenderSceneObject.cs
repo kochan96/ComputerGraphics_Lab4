@@ -1,5 +1,4 @@
 ﻿using Grafika_lab_4.Loader;
-using Grafika_lab_4.Renderers;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
@@ -9,24 +8,19 @@ namespace Grafika_lab_4.SceneObjects.Base
 {
     public abstract class RenderSceneObject
     {
-        #region Buffers
         protected int vertexArray;
         protected int vertexBuffer;
         protected int elementsBuffer;
         protected int textureBuffer;
         protected int normalsBuffer;
-        #endregion
 
-        #region Fields
         public Quaternion Rotation { get; private set; }
-        public Vector3 Scale { get; private set;}
-        #endregion
 
-        #region Properties
-        public string Name { get; set; }
+        public Vector3 Scale { get; private set; }
+
         protected Matrix4 ModelMatrix { get; private set; }
-        public Texture Texture { get; set; }
 
+        public Texture Texture { get; set; }
 
         /// <summary>
         /// WorldPosition of object
@@ -37,7 +31,7 @@ namespace Grafika_lab_4.SceneObjects.Base
             {
                 Matrix4 tmp = ModelMatrix;
                 tmp.Transpose();
-                Vector3 result = new Vector3(tmp * new Vector4(0,0,0,1.0f));
+                Vector3 result = new Vector3(tmp * new Vector4(0, 0, 0, 1.0f));
                 return result;
             }
         }
@@ -45,57 +39,31 @@ namespace Grafika_lab_4.SceneObjects.Base
         /// <summary>
         /// Vector Facing forward from object
         /// </summary>
-        public Vector3 Forward
-        {
-            get
-            {
-                return Rotation * (-Vector3.UnitZ);
-            }
-        }
+        public Vector3 Forward => Rotation * (-Vector3.UnitZ);
 
         /// <summary>
         /// Vector Facing up from object
         /// </summary>
-        public Vector3 Up
-        {
-            get
-            {
-                return Rotation* Vector3.UnitY;
-            }
-        }
+        public Vector3 Up => Rotation * Vector3.UnitY;
 
         /// <summary>
         /// Vector Facing right from object
         /// </summary>
-        public Vector3 Right
-        {
-            get
-            {
-                return Rotation* Vector3.UnitX;
-            }
-        }
-        #endregion
+        public Vector3 Right => Rotation * Vector3.UnitX;
 
-        #region Constructors
-
-        public RenderSceneObject(string name,Vector3 position):this(name)
+        public RenderSceneObject(Vector3 position) : this()
         {
             Translate(position);
         }
-        public RenderSceneObject(string name)
+
+        public RenderSceneObject()
         {
-            Name = name;
             ModelMatrix = Matrix4.Identity;
             Rotation = Quaternion.Identity;
             Scale = Vector3.One;
             GenerateBuffers();
         }
-
-        #endregion
-
-        #region SetBuffers
-
-        protected void SetVerticesBuffer(Vector3[] vertices,int position)
+        protected void SetVerticesBuffer(Vector3[] vertices, int position)
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffer);
             GL.BufferData<Vector3>(BufferTarget.ArrayBuffer, vertices.Length * Vector3.SizeInBytes, vertices, BufferUsageHint.StaticDraw);
@@ -106,30 +74,28 @@ namespace Grafika_lab_4.SceneObjects.Base
         {
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementsBuffer);
             GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(int), indices, BufferUsageHint.StaticDraw);
-
         }
-        protected void SetTextureBuffer(Vector2[] textcoord,int position)
+
+        protected void SetTextureBuffer(Vector2[] textcoord, int position)
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, textureBuffer);
             GL.BufferData(BufferTarget.ArrayBuffer, textcoord.Length * Vector2.SizeInBytes, textcoord, BufferUsageHint.StaticDraw);
             GL.VertexAttribPointer(position, 2, VertexAttribPointerType.Float, true, 0, 0);
         }
 
-        protected void SetTextureBuffer(Vector3[] textcoord,int position)
+        protected void SetTextureBuffer(Vector3[] textcoord, int position)
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, textureBuffer);
             GL.BufferData(BufferTarget.ArrayBuffer, textcoord.Length * Vector3.SizeInBytes, textcoord, BufferUsageHint.StaticDraw);
             GL.VertexAttribPointer(position, 3, VertexAttribPointerType.Float, true, 0, 0);
         }
 
-        protected void SetNormalsBuffer(Vector3[] normals,int position)
+        protected void SetNormalsBuffer(Vector3[] normals, int position)
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, normalsBuffer);
             GL.BufferData(BufferTarget.ArrayBuffer, normals.Length * Vector3.SizeInBytes, normals, BufferUsageHint.StaticDraw);
             GL.VertexAttribPointer(position, 3, VertexAttribPointerType.Float, true, 0, 0);
         }
-
-        #endregion
 
         public void Bind()
         {
@@ -142,7 +108,6 @@ namespace Grafika_lab_4.SceneObjects.Base
             GL.BindVertexArray(0);
         }
 
-        #region Transformations
         /// <summary>
         /// Scales object by factor
         /// </summary>
@@ -152,6 +117,7 @@ namespace Grafika_lab_4.SceneObjects.Base
             ModelMatrix = ModelMatrix * Matrix4.CreateScale(scale);
             Scale *= scale;
         }
+
         /// <summary>
         /// Scales object by vector
         /// </summary>
@@ -208,10 +174,8 @@ namespace Grafika_lab_4.SceneObjects.Base
             Quaternion q = CreateQuaternion(angle, Forward);
             ModelMatrix = ModelMatrix * Matrix4.CreateFromQuaternion(q);
             Translate(old);
-            Rotation = q*Rotation;
+            Rotation = q * Rotation;
         }
-
-
 
         /// <summary>
         /// Rotate object by Up vector (Changes Forward and Right Vector)
@@ -227,7 +191,7 @@ namespace Grafika_lab_4.SceneObjects.Base
             Quaternion q = CreateQuaternion(angle, Up);
             ModelMatrix = ModelMatrix * Matrix4.CreateFromQuaternion(q);
             Translate(old);
-            Rotation = q*Rotation;
+            Rotation = q * Rotation;
         }
 
         /// <summary>
@@ -244,8 +208,9 @@ namespace Grafika_lab_4.SceneObjects.Base
             Quaternion q = CreateQuaternion(angle, Right);
             ModelMatrix = ModelMatrix * Matrix4.CreateFromQuaternion(q);
             Translate(old);
-            Rotation = q*Rotation;
+            Rotation = q * Rotation;
         }
+
         /// <summary>
         /// Rotates object over axis (Changes Direction vectors)
         /// </summary>
@@ -255,7 +220,7 @@ namespace Grafika_lab_4.SceneObjects.Base
         {
             Quaternion q = CreateQuaternion(angle, axis);
             ModelMatrix = ModelMatrix * Matrix4.CreateFromQuaternion(q);
-            Rotation = q*Rotation;
+            Rotation = q * Rotation;
         }
 
         /// <summary>
@@ -263,7 +228,7 @@ namespace Grafika_lab_4.SceneObjects.Base
         /// </summary>
         /// <param name="angle">angle of rotation</param>
         /// <param name="axis">axis of rotation</param>
-        public void Rotate(float angle,Vector3 axis )
+        public void Rotate(float angle, Vector3 axis)
         {
             Quaternion q = CreateQuaternion(angle, axis);
             ModelMatrix = ModelMatrix * Matrix4.CreateFromQuaternion(q);
@@ -306,8 +271,6 @@ namespace Grafika_lab_4.SceneObjects.Base
             ModelMatrix = ModelMatrix * Matrix4.CreateFromQuaternion(q);
         }
 
-        #endregion
-
         /// <summary>
         /// Render an object
         /// </summary>
@@ -316,14 +279,13 @@ namespace Grafika_lab_4.SceneObjects.Base
         /// <param name="lights">List of lights</param>
         /// <param name="PhongLightningModel">True if Phong, False if Blinn</param>
         /// <param name="PhongShading">True if Phong, False if Gouroud</param>
-        public abstract void Render(Matrix4 viewMatrix,Matrix4 projectionMatrix,List<Lights.Light> lights,bool PhongLightningModel,bool PhongShading);
+        public abstract void Render(Matrix4 viewMatrix, Matrix4 projectionMatrix, List<Lights.Light> lights, bool PhongLightningModel, bool PhongShading);
 
         public abstract void Update(float deltatime);
 
         public abstract void Dispose();
 
         protected abstract void GenerateBuffers();
-
 
     }
 }

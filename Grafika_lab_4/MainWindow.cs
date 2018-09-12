@@ -1,6 +1,7 @@
 ﻿using Grafika_lab_4.Configuration;
 using Grafika_lab_4.Lights;
 using Grafika_lab_4.Loader;
+using Grafika_lab_4.Renderers.Structs;
 using Grafika_lab_4.SceneObjects;
 using Grafika_lab_4.SceneObjects.Base;
 using Grafika_lab_4.SceneObjects.Cameras;
@@ -9,6 +10,7 @@ using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using OpenTK.Graphics;
 
 namespace Grafika_lab_4
 {
@@ -19,18 +21,21 @@ namespace Grafika_lab_4
             InitializeComponent();
         }
 
-        DateTime lastMeasuredFPSTime;
-        DateTime lastMeasuredTime;
-        int frames;
-        Matrix4 ProjectionMatrix;
-        List<Camera> cameras = new List<Camera>();
-        int activeCameraIndex = 0;
-        List<Light> lights = new List<Light>();
-        List<RenderSceneObject> renderObjects = new List<RenderSceneObject>();
-        Vector3 SkyColor = new Vector3(0.5f, 0.5f, 0.5f);
-        bool PhongLightinngModel = true;
-        bool PhongShading = true;
-        Aircraft aircraft;
+        private DateTime lastMeasuredFPSTime;
+        private DateTime lastMeasuredTime;
+        private int frames;
+        private Matrix4 ProjectionMatrix;
+        private List<Camera> cameras = new List<Camera>();
+        private int activeCameraIndex = 0;
+        private List<Light> lights = new List<Light>();
+        private List<RenderSceneObject> renderObjects = new List<RenderSceneObject>();
+        private Vector3 SkyColor = new Vector3(0.5f, 0.5f, 0.5f);
+        private bool PhongLightinngModel = true;
+        private bool PhongShading = true;
+        private Aircraft aircraft;
+        private Terrain terrain;
+        private Texture texture1;
+        private Texture texture2;
 
         private void MainWindow_Load(object sender, EventArgs e)
         {
@@ -55,14 +60,14 @@ namespace Grafika_lab_4
 
         private void CreateObjects()
         {
-            Texture texture1 = TextureLoader.LoadTexture2D(Resources.GreenTexture);
-            Texture texture2 = TextureLoader.LoadTexture2D(Resources.RockTexture);
+            texture1 = TextureLoader.LoadTexture2D(Resources.GreenTexture);
+            texture2 = TextureLoader.LoadTexture2D(Resources.RockTexture);
             Texture skyBoxTexture1 = TextureLoader.LoadCubeMap(Resources.SkyCubeMapTextures);
             Texture TreeTexture = TextureLoader.LoadTexture2D(Resources.TreeTexture);
             ///Terain
-            Terrain terrain = new Terrain("Terrain", Resources.MountainsHeightMap)
+            terrain = new Terrain(Resources.MountainsHeightMap)
             {
-                Texture = texture1,
+                Texture = texture2,
             };
             float TerrainLength = 300f;
             float TerrainHeight = 20f;
@@ -72,7 +77,7 @@ namespace Grafika_lab_4
 
 
             ///FirstAircraft
-            aircraft = new Aircraft("Aircraft1");
+            aircraft = new Aircraft();
             aircraft.Speed = 0.4f;
             aircraft.HumanControlSpeed = 20f;
             aircraft.ScaleObject(100f);
@@ -82,44 +87,37 @@ namespace Grafika_lab_4
             aircraft.Semimajor = 50f;
             aircraft.Semiminor = 50f;
             aircraft.Translate(aircraft.Up * 8f);
-            aircraft.HumanControl = true;
-            aircraft.HumanControl = false;
+            aircraft.EllipseY = aircraft.Position.Y;
 
-            /* ControlableAircraft controlAircraft = new ControlableAircraft("PlayerAircrft");
-             controlAircraft.Speed = 0.5f;
-             controlAircraft.ScaleObject(50f);
-             controlAircraft.RotateByY(MathHelper.PiOver2);
-             controlAircraft.RotateByZ(MathHelper.PiOver2);
-             controlAircraft.RotateAndChange(MathHelper.Pi, Vector3.UnitY);
-             controlAircraft.Translate(-20f * controlAircraft.Forward);
-             controlAircraft.Translate(aircraft.Up * 5f);*/
-
-            Sphere sphere = new Sphere("spher", 100);
+            Sphere sphere = new Sphere(100);
             sphere.ScaleObject(5);
             sphere.Color = Vector3.UnitX;
             sphere.SpecularExponent = 10f;
             sphere.SetPosition(new Vector3(-50f, 8f, 50f));
+            sphere.InitalPosition = sphere.Position;
 
-            Sphere sphere2 = new Sphere("sphere2", 100);
+            Sphere sphere2 = new Sphere(100);
             sphere2.ScaleObject(5);
             sphere2.Color = Vector3.UnitY;
             sphere2.SpecularExponent = 500f;
             sphere2.SetPosition(new Vector3(50f, 8f, 50f));
+            sphere2.InitalPosition = sphere2.Position;
 
-            Cube cube = new Cube("cube");
+            Cube cube = new Cube();
             cube.Color = Vector3.One;
             cube.SpecularExponent = 1f;
             cube.ScaleObject(new Vector3(1.2f, 10f, 1.2f));
             cube.SetPosition(new Vector3(60f, 5f, 0f));
 
-            Sphere sphere3 = new Sphere("sphere2", 100);
+            Sphere sphere3 = new Sphere(100);
             sphere3.ScaleObject(5);
             sphere3.Color = Vector3.UnitY;
             sphere3.SpecularExponent = 1000f;
             sphere3.Translate(cube.Position);
-            sphere3.Translate(cube.Up * (cube.Scale.Y + 1.5f));
+            sphere3.Translate(cube.Up * (cube.Scale.Y + 4.5f));
+            sphere3.InitalPosition = sphere3.Position;
 
-            SkyBox skybox = new SkyBox("SkyBox", TerrainLength);
+            SkyBox skybox = new SkyBox(TerrainLength);
             skybox.Texture = skyBoxTexture1;
 
             ///RenderObjects
@@ -128,7 +126,7 @@ namespace Grafika_lab_4
 
             for (int i = 0; i < 500; i++)
             {
-                Tree tree = new Tree("");
+                Tree tree = new Tree();
                 tree.Texture = TreeTexture;
                 float X = rnd.Next(2 * (int)TerrainLength);
                 X -= TerrainLength / 2;
@@ -148,26 +146,26 @@ namespace Grafika_lab_4
             ///render last
             renderObjects.Add(skybox);
 
-            MovingCamera moveCamera = new MovingCamera("MovingCamera")
+            MovingCamera moveCamera = new MovingCamera()
             {
                 CameraPosition = new Vector3(-2.2f, 45.8f, 90.39f),
                 MoveSpeed = 1.5f
             };
-            Camera staticCamera = new StaticCamera("StaticCamera")
+            Camera staticCamera = new Camera()
             {
                 CameraPosition = new Vector3(-2.2f, 45.8f, -90.39f)
             };
-            Camera staticFollowCamera = new StaticCamera("StaticFollowCamera", aircraft)
+            Camera staticFollowCamera = new StaticFollowCamera(aircraft)
             {
                 CameraPosition = new Vector3(0f, 20f, 10f)
             };
-            Camera staticFollowCamera2 = new StaticCamera("StaticFollowCamera", sphere)
+            Camera staticFollowCamera2 = new StaticFollowCamera(sphere)
             {
                 CameraPosition = new Vector3(0f, 10f, 10f)
             };
-            BehindCamera behindCamera = new BehindCamera("behindCamera", aircraft)
+            BehindCamera behindCamera = new BehindCamera(aircraft)
             {
-                Dist = 13f,
+                Dist = 20f,
                 Angle = MathHelper.PiOver6
             };
 
@@ -181,24 +179,19 @@ namespace Grafika_lab_4
             cameras[activeCameraIndex].IsActive = true;
 
             //Lights
-            Light light = new Light("Light")
+            Light light = new Light()
             {
                 Position = 50f * Vector3.UnitY,
                 Color = Vector3.One,
                 LightType = LightTypes.PointLight,
                 AmbientIntensity = 0.1f,
                 DiffuseIntensity = 0.8f,
-                SpecularIntensity = 0.1f
+                SpecularIntensity = 0.1f,
             };
-
-
 
             light.Direction = (Vector3.Zero - light.Position).Normalized();
             lights.Add(light);
             lights.AddRange(aircraft.Light);
-            //lights.AddRange(controlAircraft.Light);
-            //
-
         }
 
         private void SetTimer()
@@ -238,7 +231,7 @@ namespace Grafika_lab_4
             glControl.Invalidate();
         }
 
-        Random rnd = new Random();
+        private Random rnd = new Random();
 
         private void glControl_Paint(object sender, PaintEventArgs e)
         {
@@ -255,15 +248,35 @@ namespace Grafika_lab_4
         }
         private void glControl_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.C)
+            switch (e.KeyCode)
             {
-                cameras[activeCameraIndex].IsActive = false;
-                activeCameraIndex = (activeCameraIndex + 1) % cameras.Count;
-                cameras[activeCameraIndex].IsActive = true;
-            }
-            else if (e.KeyCode == Keys.H)
-            {
-                aircraft.HumanControl = !aircraft.HumanControl;
+                case Keys.C:
+                    {
+                        cameras[activeCameraIndex].IsActive = false;
+                        activeCameraIndex = (activeCameraIndex + 1) % cameras.Count;
+                        cameras[activeCameraIndex].IsActive = true;
+                    }
+                    break;
+                case Keys.H:
+                    {
+                        aircraft.HumanControl = !aircraft.HumanControl;
+                        break;
+                    }
+                case Keys.P:
+                    {
+                        PhongShading = !PhongShading;
+                        break;
+                    }
+                case Keys.L:
+                    {
+                        PhongLightinngModel = !PhongLightinngModel;
+                        break;
+                    }
+                case Keys.G:
+                    {
+                        terrain.Texture = terrain.Texture == texture1 ? texture2 : texture1;
+                        break;
+                    }
             }
         }
 
@@ -271,7 +284,6 @@ namespace Grafika_lab_4
         {
             GL.Viewport(glControl.Size);
             ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(1.3f, glControl.Width / (float)glControl.Height, 1f, 1000f);
-
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -289,18 +301,6 @@ namespace Grafika_lab_4
             foreach (var obj in renderObjects)
             {
                 obj.Dispose();
-            }
-        }
-
-        private void CombobBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (ShadingCombobBox == sender)
-            {
-                PhongShading = ShadingCombobBox.SelectedIndex == 0;
-            }
-            else if (LightningComboBox == sender)
-            {
-                PhongLightinngModel = LightningComboBox.SelectedIndex == 0;
             }
         }
     }

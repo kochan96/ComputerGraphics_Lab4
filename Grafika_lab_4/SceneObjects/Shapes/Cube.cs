@@ -1,40 +1,31 @@
 ﻿using Grafika_lab_4.Lights;
-using Grafika_lab_4.Loader;
 using Grafika_lab_4.Renderers;
 using Grafika_lab_4.SceneObjects.Base;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grafika_lab_4.SceneObjects
 {
     public class Cube : RenderSceneObject
     {
+        private const int vertexCount = 36;
 
-        int vertexCount = 36;
-        public Cube(string name):base(name)
-        {
-            CreateCube();
-        }
-
-        public Vector3 Color { get; set; }
-        public float SpecularExponent { get; set; }
-
-        EntityRenderer renderer = EntityRenderer.Instance;
-
-        private void CreateCube()
+        public Cube()
         {
             Vector3[] vertices = CreateVertices();
             Vector3[] normals = CreateNormals();
             Bind();
-            SetVerticesBuffer(vertices,renderer.PositonLocation);
-            SetNormalsBuffer(normals,renderer.NormalLocation);
+            SetVerticesBuffer(vertices, renderer.PositionAttribute);
+            SetNormalsBuffer(normals, renderer.NormalAttribute);
             UnBind();
         }
+
+        public Vector3 Color { get; set; }
+
+        public float SpecularExponent { get; set; }
+
+        private EntityRenderer renderer = EntityRenderer.Instance;
 
         private Vector3[] CreateVertices()
         {
@@ -170,15 +161,13 @@ namespace Grafika_lab_4.SceneObjects
             renderer.SetSpecularColor(Color);
             renderer.SetSpecularExponent(SpecularExponent);
             renderer.EnableVertexAttribArrays();
+            renderer.SetPhongLightning(PhongLightningModel);
             GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
             renderer.DisableVertexAttribArrays();
         }
 
         public override void Update(float deltatime)
         {
-            
         }
-
-       
     }
 }

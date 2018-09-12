@@ -7,6 +7,7 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Grafika_lab_4.SceneObjects
@@ -14,13 +15,10 @@ namespace Grafika_lab_4.SceneObjects
     public class Tree : RenderSceneObject
     {
 
-        #region Fields
         EntityRenderer renderer = EntityRenderer.Instance;
         public RawObjModel RawModel;
 
-        #endregion
-
-        public Tree(string name, Vector3 position) : base(name, position)
+        public Tree(Vector3 position) : base(position)
         {
             string modelFile = Resources.TreeModel;
             if (File.Exists(modelFile))
@@ -28,7 +26,8 @@ namespace Grafika_lab_4.SceneObjects
                 CreateTree(modelFile);
             }
         }
-        public Tree(string name) : this(name, Vector3.Zero) { }
+
+        public Tree() : this(Vector3.Zero) { }
 
         protected override void GenerateBuffers()
         {
@@ -47,7 +46,7 @@ namespace Grafika_lab_4.SceneObjects
                 MessageBox.Show("Could not load Model" + filePath);
                 return;
             }
-            else if (model.Meshes == null || model.Meshes.Count == 0)
+            else if (model.Meshes == null || !model.Meshes.Any())
             {
                 MessageBox.Show("Loaded model is empty" + filePath);
                 return;
@@ -60,10 +59,10 @@ namespace Grafika_lab_4.SceneObjects
                 indices.AddRange(mesh.Indices);
             }
             RawModel = model;
-            SetVerticesBuffer(model.Vertices.ToArray(), renderer.PositonLocation);
+            SetVerticesBuffer(model.Vertices.ToArray(), renderer.PositionAttribute);
             SetIndicesBuffer(indices.ToArray());
-            SetNormalsBuffer(model.Normals.ToArray(), renderer.NormalLocation);
-            SetTextureBuffer(model.TextureCoordinates.ToArray(), renderer.TextureCoordLocation);
+            SetNormalsBuffer(model.Normals.ToArray(), renderer.NormalAttribute);
+            SetTextureBuffer(model.TextureCoordinates.ToArray(), renderer.TextureCoordAttribute);
             UnBind();
         }
 
@@ -77,6 +76,10 @@ namespace Grafika_lab_4.SceneObjects
                 renderer.SetProjectionMatrix(projectionMatrix);
                 renderer.SetViewMatrix(viewMatrix);
                 renderer.SetHasTexture(Texture != null);
+                renderer.SetPhongLightning(PhongLightningModel);
+                renderer.SetDiscard(true);
+                GL.ActiveTexture(TextureUnit.Texture0);
+                GL.BindTexture(TextureTarget.Texture2D, Texture.TextureId);
                 renderer.EnableVertexAttribArrays();
                 foreach (Mesh mesh in RawModel.Meshes)
                 {
@@ -91,13 +94,9 @@ namespace Grafika_lab_4.SceneObjects
             }
         }
 
-
         public override void Update(float deltatime)
         {
-
-
         }
-
 
         public override void Dispose()
         {

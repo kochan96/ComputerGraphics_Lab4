@@ -3,17 +3,17 @@ using Grafika_lab_4.Lights;
 using Grafika_lab_4.Renderers.Structs;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
-using System;
 using System.Collections.Generic;
 
 namespace Grafika_lab_4.Renderers
 {
     public class TerrainRenderer : Renderer
     {
-        #region Singleton
-        private TerrainRenderer() : base(Properties.Resources.terrain1, Properties.Resources.terrainFrag, nameof(TerrainRenderer)) { }
+        private TerrainRenderer() : base(Resources.TerrainVertexShader, Resources.TerrainFragmentShader)
+        { }
+
         private static volatile TerrainRenderer instance;
-        private static object syncRoot = new Object();
+        private static readonly object _syncRoot = new object();
 
         public static TerrainRenderer Instance
         {
@@ -21,7 +21,7 @@ namespace Grafika_lab_4.Renderers
             {
                 if (instance == null)
                 {
-                    lock (syncRoot)
+                    lock (_syncRoot)
                     {
                         if (instance == null)
                         {
@@ -33,100 +33,99 @@ namespace Grafika_lab_4.Renderers
             }
         }
 
+        public int PositionAttribute { get; private set; }
 
+        public int NormalAttribute { get; private set; }
 
-        #endregion
+        public int TextureCoordAttribute { get; private set; }
 
-        #region AttributeLocations
-        public int PositionLocation { get; private set; }
-        public int NormalLocation { get; private set; }
-        public int TextureCoordLocation { get; private set; }
-        #endregion
-
-        #region UniformsLocation
-        int ModelMatrixLocation;
-        int ViewMatrixLocation;
-        int ProjectionMatrixLocation;
-        readonly List<LightLocation> lightsLocation = new List<LightLocation>();
-        #endregion
+        private int ModelMatrixUniform;
+        private int ViewMatrixUniform;
+        private int ProjectionMatrixUniform;
+        private int PhongLightningUniform;
+        private readonly List<LightUniform> LightsUniform = new List<LightUniform>();
 
         public override void EnableVertexAttribArrays()
         {
-            GL.EnableVertexAttribArray(PositionLocation);
-            GL.EnableVertexAttribArray(NormalLocation);
-            GL.EnableVertexAttribArray(TextureCoordLocation);
+            GL.EnableVertexAttribArray(PositionAttribute);
+            GL.EnableVertexAttribArray(NormalAttribute);
+            GL.EnableVertexAttribArray(TextureCoordAttribute);
         }
 
         public override void DisableVertexAttribArrays()
         {
-            GL.DisableVertexAttribArray(PositionLocation);
-            GL.DisableVertexAttribArray(NormalLocation);
-            GL.DisableVertexAttribArray(TextureCoordLocation);
+            GL.DisableVertexAttribArray(PositionAttribute);
+            GL.DisableVertexAttribArray(NormalAttribute);
+            GL.DisableVertexAttribArray(TextureCoordAttribute);
         }
 
-        protected override void SetAttributesLocations()
+        protected override void SetAttributess()
         {
-            PositionLocation = GetAttrubuteLocation("Position");
-            NormalLocation = GetAttrubuteLocation("Normal");
-            TextureCoordLocation = GetAttrubuteLocation("TextCoord");
+            PositionAttribute = GetAttrubute(nameof(PositionAttribute));
+            NormalAttribute = GetAttrubute(nameof(NormalAttribute));
+            TextureCoordAttribute = GetAttrubute(nameof(TextureCoordAttribute));
         }
 
-        protected override void SetUniformsLocations()
+        protected override void SetUniformss()
         {
-            ViewMatrixLocation = GetUniformLocation("ViewMatrix");
-            ProjectionMatrixLocation = GetUniformLocation("ProjectionMatrix");
-            ModelMatrixLocation = GetUniformLocation("ModelMatrix");
+            ViewMatrixUniform = GetUniform(nameof(ViewMatrixUniform));
+            ProjectionMatrixUniform = GetUniform(nameof(ProjectionMatrixUniform));
+            ModelMatrixUniform = GetUniform(nameof(ModelMatrixUniform));
+            PhongLightningUniform = GetUniform(nameof(PhongLightningUniform));
+
             for (int i = 0; i < MaxLight; i++)
             {
-                var lightLocation = new LightLocation
+                var light = new LightUniform()
                 {
-                    PositionLocation = GetUniformLocation($"Lights[{i}].Position"),
-                    AttenuationLocation = GetUniformLocation($"Lights[{i}].Attenuation"),
-                    ColorLocation = GetUniformLocation($"Lights[{i}].Color"),
-                    DirectionLocation = GetUniformLocation($"Lights[{i}].Direction"),
-                    SpecularIntensityLocation = GetUniformLocation($"Lights[{i}].SpecularIntensity"),
-                    AmbientIntensityLocation = GetUniformLocation($"Lights[{i}].AmbientIntensity"),
-                    DiffuseIntensityLocation = GetUniformLocation($"Lights[{i}].DiffuseIntensity"),
-                    ConeAngleLocation = GetUniformLocation($"Lights[{i}].ConeAngle"),
-                    TypeLocation = GetUniformLocation($"Lights[{i}].LightType"),
+                    Position = GetUniform($"{nameof(LightsUniform)}[{i}].Position"),
+                    Attenuation = GetUniform($"{nameof(LightsUniform)}[{i}].Attenuation"),
+                    Color = GetUniform($"{nameof(LightsUniform)}[{i}].Color"),
+                    Direction = GetUniform($"{nameof(LightsUniform)}[{i}].Direction"),
+                    SpecularIntensity = GetUniform($"{nameof(LightsUniform)}[{i}].SpecularIntensity"),
+                    AmbientIntensity = GetUniform($"{nameof(LightsUniform)}[{i}].AmbientIntensity"),
+                    DiffuseIntensity = GetUniform($"{nameof(LightsUniform)}[{i}].DiffuseIntensity"),
+                    ConeAngle = GetUniform($"{nameof(LightsUniform)}[{i}].ConeAngle"),
+                    LightType = GetUniform($"{nameof(LightsUniform)}[{i}].LightType"),
                 };
-                lightsLocation.Add(lightLocation);
+
+                LightsUniform.Add(light);
             }
         }
 
         public void SetViewMatrix(Matrix4 viewMatrix)
         {
-            GL.UniformMatrix4(ViewMatrixLocation, false, ref viewMatrix);
+            GL.UniformMatrix4(ViewMatrixUniform, false, ref viewMatrix);
         }
         public void SetProjectionMatrix(Matrix4 projMatrix)
         {
-            GL.UniformMatrix4(ProjectionMatrixLocation, false, ref projMatrix);
+            GL.UniformMatrix4(ProjectionMatrixUniform, false, ref projMatrix);
         }
 
         public void SetModelMatrix(Matrix4 modelMatrix)
         {
-            GL.UniformMatrix4(ModelMatrixLocation, false, ref modelMatrix);
+            GL.UniformMatrix4(ModelMatrixUniform, false, ref modelMatrix);
+        }
+
+        public void SetPhongLightning(bool value)
+        {
+            GL.Uniform1(PhongLightningUniform, value ? 1 : 0);
         }
 
         public void SetLights(List<Light> lights)
         {
             for (int i = 0; i < MaxLight; i++)
             {
-                var light = new Light(string.Empty);
-                if (lights.Count > i)
-                {
-                    light = lights[i];
-                }
+                Light light = lights.Count > i ? lights[i] : new Light();
 
-                GL.Uniform3(lightsLocation[i].PositionLocation, ref light.Position);
-                GL.Uniform3(lightsLocation[i].AttenuationLocation, ref light.Attenuation);
-                GL.Uniform3(lightsLocation[i].ColorLocation, ref light.Color);
-                GL.Uniform3(lightsLocation[i].DirectionLocation, ref light.Direction);
-                GL.Uniform1(lightsLocation[i].SpecularIntensityLocation, light.SpecularIntensity);
-                GL.Uniform1(lightsLocation[i].AmbientIntensityLocation, light.AmbientIntensity);
-                GL.Uniform1(lightsLocation[i].DiffuseIntensityLocation, light.DiffuseIntensity);
-                GL.Uniform1(lightsLocation[i].ConeAngleLocation, light.ConeAngle);
-                GL.Uniform1(lightsLocation[i].TypeLocation, (int)light.LightType);
+                GL.Uniform3(LightsUniform[i].Position, light.Position);
+                GL.Uniform3(LightsUniform[i].Attenuation, light.Attenuation);
+                GL.Uniform3(LightsUniform[i].Color, light.Color);
+                GL.Uniform3(LightsUniform[i].Direction, light.Direction);
+                GL.Uniform1(LightsUniform[i].SpecularIntensity, light.SpecularIntensity);
+                GL.Uniform1(LightsUniform[i].AmbientIntensity, light.AmbientIntensity);
+                GL.Uniform1(LightsUniform[i].DiffuseIntensity, light.DiffuseIntensity);
+                GL.Uniform1(LightsUniform[i].ConeAngle, light.ConeAngle);
+                GL.Uniform1(LightsUniform[i].LightType, (int)light.LightType);
             }
         }
     }

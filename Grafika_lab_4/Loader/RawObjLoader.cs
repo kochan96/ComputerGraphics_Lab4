@@ -37,7 +37,7 @@ namespace Grafika_lab_4.Loader
             RawObjModel obj = new RawObjModel();
 
             bool listening = false;
-            string meshname = "";
+            string meshname = string.Empty;
             Mesh tmpMesh;
 
             string line;
@@ -244,7 +244,7 @@ namespace Grafika_lab_4.Loader
 
         private static List<Material> LoadMaterials(string filePath)
         {
-            filePath = Resources.MaterialsFolder + filePath;
+            filePath = $"{Resources.MaterialsFolder}/{filePath}";
             if (!File.Exists(filePath))
             {
                 MessageBox.Show("Could not load Materials" + filePath);

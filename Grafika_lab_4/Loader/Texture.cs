@@ -10,6 +10,5 @@
             TextureId = textid;
             Dimensions = dimensions;
         }
-
     }
 }

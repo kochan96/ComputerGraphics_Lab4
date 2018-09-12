@@ -19,10 +19,9 @@ in vec3 pass_Normal;
 in vec3 pass_Position;
 in vec3 toCameraVector;
 
-
-uniform sampler2D TextureSampler;
-uniform Light Lights[5];
-uniform bool PhongLightning;
+uniform sampler2D TextureSamplerUniform;
+uniform Light LightsUniform[5];
+uniform bool PhongLightningUniform;
 
 out vec4 outputColor;
 
@@ -33,52 +32,52 @@ void main()
 	
 	vec3 unitCameraVector=normalize(toCameraVector);
 
-    vec3 color = vec3(texture(TextureSampler, pass_textcoord));
+    vec3 color = vec3(texture(TextureSamplerUniform, pass_textcoord));
 
 	vec3 totalDiffuse=vec3(0.0);
 	vec3 totalSpecular=vec3(0.0);
 	vec3 totalAmbient=vec3(0.0);
 	for(int i=0;i<5;i++){
 
-		if(Lights[i].Color==vec3(0.0))
+		if(LightsUniform[i].Color==vec3(0.0))
 		{
 			continue;
 		}
 
-		vec3 toLightVector=Lights[i].Position - pass_Position;
+		vec3 toLightVector=LightsUniform[i].Position - pass_Position;
 		//attenuation
 		float distance=length(toLightVector);
-		float attenuationFactor=Lights[i].Attenuation.x+(Lights[i].Attenuation.y*distance)+(Lights[i].Attenuation.z*distance*distance);
+		float attenuationFactor=LightsUniform[i].Attenuation.x+(LightsUniform[i].Attenuation.y*distance)+(LightsUniform[i].Attenuation.z*distance*distance);
 		vec3 unitLightVector=normalize(toLightVector);
 
 		 bool inCone = false;
-		if(Lights[i].LightType == 1 && degrees(acos(dot(-unitLightVector, Lights[i].Direction))) < Lights[i].ConeAngle)
+		if(LightsUniform[i].LightType == 1 && degrees(acos(dot(-unitLightVector, LightsUniform[i].Direction))) < LightsUniform[i].ConeAngle)
 		{
 			inCone = true;
 		}
 
-		if(Lights[i].LightType == 2){
-			unitLightVector = normalize(-Lights[i].Direction);
+		if(LightsUniform[i].LightType == 2){
+			unitLightVector = normalize(-LightsUniform[i].Direction);
 		}
 
 		//ambient
-			totalAmbient+=Lights[i].AmbientIntensity*Lights[i].Color;
-		if(Lights[i].LightType!=1 || inCone){
+			totalAmbient+=LightsUniform[i].AmbientIntensity*LightsUniform[i].Color;
+		if(LightsUniform[i].LightType!=1 || inCone){
 			
 			//diffuse
 			float nDot1=dot(unitNormal,unitLightVector);
 			float brightness=max(nDot1,0.0);
-			totalDiffuse+=(Lights[i].DiffuseIntensity*brightness*Lights[i].Color)/attenuationFactor;
+			totalDiffuse+=(LightsUniform[i].DiffuseIntensity*brightness*LightsUniform[i].Color)/attenuationFactor;
 		
 			//specular
-			if(PhongLightning)
+			if(PhongLightningUniform)
 			{
 				vec3 lightDirection=-unitLightVector;
 				vec3 reflectedLightDirection=reflect(lightDirection,unitNormal);
 				float specularFactor=dot(reflectedLightDirection,unitCameraVector);
 				specularFactor=max(specularFactor,0.0f);
 				float dampedFactor=pow(specularFactor,20);
-				totalSpecular+=(Lights[i].SpecularIntensity*dampedFactor*Lights[i].Color)/attenuationFactor;
+				totalSpecular+=(LightsUniform[i].SpecularIntensity*dampedFactor*LightsUniform[i].Color)/attenuationFactor;
 			}
 		}
 	}

@@ -1,21 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Grafika_lab_4.Renderers.Structs
+﻿namespace Grafika_lab_4.Renderers.Structs
 {
-    public struct LightLocation
+    public struct LightUniform
     {
-        public int PositionLocation;
-        public int ColorLocation;
-        public int TypeLocation;
-        public int DirectionLocation;
-        public int ConeAngleLocation;
-        public int AmbientIntensityLocation;
-        public int DiffuseIntensityLocation;
-        public int SpecularIntensityLocation;
-        public int AttenuationLocation;
+        public int Position;
+
+        public int Color;
+
+        public int LightType;
+
+        public int Direction;
+
+        public int ConeAngle;
+
+        public int AmbientIntensity;
+
+        public int DiffuseIntensity;
+
+        public int SpecularIntensity;
+
+        public int Attenuation;
     }
 }

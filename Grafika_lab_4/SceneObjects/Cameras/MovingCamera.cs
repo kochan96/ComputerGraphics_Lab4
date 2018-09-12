@@ -5,21 +5,11 @@ namespace Grafika_lab_4.SceneObjects.Cameras
 {
     public class MovingCamera : Camera
     {
+        private  Vector3 _orientation = new Vector3((float)Math.PI, 0f, 0f);
 
-        public Vector3 Orientation = new Vector3((float)Math.PI, 0f, 0f);
         public float MoveSpeed = 0.2f;
-        public float MouseSensitivity = 0.005f;
-        Vector3 cameraPosition;
-        public override Vector3 CameraPosition { get { return cameraPosition; } set { cameraPosition = value; } }
-        public override Vector3 CameraTarget { get; set; }
-        public override Vector3 CameraUp { get; set; }
 
-        public MovingCamera(string name) : base(name)
-        {
-            cameraPosition = Vector3.Zero;
-            CameraTarget = Vector3.Zero;
-            CameraUp = Vector3.UnitY;
-        }
+        public float MouseSensitivity = 0.005f;
 
         private void HandleKeyboard()
         {
@@ -59,7 +49,7 @@ namespace Grafika_lab_4.SceneObjects.Cameras
         {
             Vector3 offset = new Vector3();
 
-            Vector3 forward = new Vector3((float)Math.Sin((float)Orientation.X), 0, (float)Math.Cos((float)Orientation.X));
+            Vector3 forward = new Vector3((float)Math.Sin(_orientation.X), 0, (float)Math.Cos(_orientation.X));
             Vector3 right = new Vector3(-forward.Z, 0, forward.X);
 
             offset += x * right;
@@ -77,8 +67,8 @@ namespace Grafika_lab_4.SceneObjects.Cameras
             x = x * MouseSensitivity;
             y = y * MouseSensitivity;
 
-            Orientation.X = (Orientation.X + x) % ((float)Math.PI * 2.0f);
-            Orientation.Y = Math.Max(Math.Min(Orientation.Y + y, (float)Math.PI / 2.0f - 0.1f), (float)-Math.PI / 2.0f + 0.1f);
+            _orientation.X = (_orientation.X + x) % ((float)Math.PI * 2.0f);
+            _orientation.Y = Math.Max(Math.Min(_orientation.Y + y, (float)Math.PI / 2.0f - 0.1f), (float)-Math.PI / 2.0f + 0.1f);
         }
 
         Vector2 lasPos = Vector2.Zero;
@@ -102,9 +92,9 @@ namespace Grafika_lab_4.SceneObjects.Cameras
             }
 
             Vector3 lookat = new Vector3();
-            lookat.X = (float)(Math.Sin((float)Orientation.X) * Math.Cos((float)Orientation.Y));
-            lookat.Y = (float)Math.Sin((float)Orientation.Y);
-            lookat.Z = (float)(Math.Cos((float)Orientation.X) * Math.Cos((float)Orientation.Y));
+            lookat.X = (float)(Math.Sin(_orientation.X) * Math.Cos(_orientation.Y));
+            lookat.Y = (float)Math.Sin(_orientation.Y);
+            lookat.Z = (float)(Math.Cos(_orientation.X) * Math.Cos(_orientation.Y));
             CameraTarget = CameraPosition + lookat;
         }
     }
