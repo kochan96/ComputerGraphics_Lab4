@@ -49,6 +49,7 @@ namespace Grafika_lab_4.Renderers
         private int ProjectionMatrixUniform;
         private int ModelMatrixUniform;
         private int PhongLightningUniform;
+        private int PhongShadingUniform;
         private readonly List<LightUniform> LightsUniform = new List<LightUniform>();
         private int DiscardUniform;
 
@@ -71,6 +72,7 @@ namespace Grafika_lab_4.Renderers
             ModelMatrixUniform = GetUniform(nameof(ModelMatrixUniform));
             PhongLightningUniform = GetUniform(nameof(PhongLightningUniform));
             DiscardUniform = GetUniform(nameof(DiscardUniform));
+            PhongShadingUniform = GetUniform(nameof(PhongShadingUniform));
             for (int i = 0; i < MaxLight; i++)
             {
                 var light = new LightUniform
@@ -143,6 +145,11 @@ namespace Grafika_lab_4.Renderers
         public void SetPhongLightning(bool value)
         {
             GL.Uniform1(PhongLightningUniform, value ? 1 : 0);
+        }
+
+        public void SetPhongShading(bool value)
+        {
+            GL.Uniform1(PhongShadingUniform, value ? 1 : 0);
         }
 
         public void SetDiscard(bool discard)

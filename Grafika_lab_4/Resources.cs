@@ -7,8 +7,6 @@
 
         public static readonly string EntityVertexShader = $"{ShadersFolder}/entity.vert";
         public static readonly string EntityFragmentShader = $"{ShadersFolder}/entity.frag";
-        public static readonly string TerrainVertexShader = $"{ShadersFolder}/terrain.vert";
-        public static readonly string TerrainFragmentShader = $"{ShadersFolder}/terrain.frag";
         public static readonly string SkyBoxVertexShader = $"{ShadersFolder}/skybox.vert";
         public static readonly string SkyBoxFragmentShader = $"{ShadersFolder}/skybox.frag";
 

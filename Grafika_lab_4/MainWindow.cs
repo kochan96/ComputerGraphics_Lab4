@@ -89,14 +89,14 @@ namespace Grafika_lab_4
             aircraft.Translate(aircraft.Up * 8f);
             aircraft.EllipseY = aircraft.Position.Y;
 
-            Sphere sphere = new Sphere(100);
+            Sphere sphere = new Sphere(10);
             sphere.ScaleObject(5);
             sphere.Color = Vector3.UnitX;
             sphere.SpecularExponent = 10f;
             sphere.SetPosition(new Vector3(-50f, 8f, 50f));
             sphere.InitalPosition = sphere.Position;
 
-            Sphere sphere2 = new Sphere(100);
+            Sphere sphere2 = new Sphere(10);
             sphere2.ScaleObject(5);
             sphere2.Color = Vector3.UnitY;
             sphere2.SpecularExponent = 500f;
@@ -109,7 +109,7 @@ namespace Grafika_lab_4
             cube.ScaleObject(new Vector3(1.2f, 10f, 1.2f));
             cube.SetPosition(new Vector3(60f, 5f, 0f));
 
-            Sphere sphere3 = new Sphere(100);
+            Sphere sphere3 = new Sphere(10);
             sphere3.ScaleObject(5);
             sphere3.Color = Vector3.UnitY;
             sphere3.SpecularExponent = 1000f;

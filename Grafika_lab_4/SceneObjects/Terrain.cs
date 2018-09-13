@@ -272,6 +272,7 @@ namespace Grafika_lab_4.SceneObjects
             renderer.SetDiffuseColor(Vector3.One);
             renderer.SetSpecularColor(Vector3.One);
             renderer.SetHasTexture(Texture != null);
+            renderer.SetPhongShading(PhongShading);
             renderer.EnableVertexAttribArrays();
             GL.DrawElements(BeginMode.TriangleStrip, _indicesCount, DrawElementsType.UnsignedInt, 0);
             renderer.DisableVertexAttribArrays();

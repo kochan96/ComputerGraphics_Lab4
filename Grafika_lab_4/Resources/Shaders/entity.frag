@@ -18,20 +18,25 @@ in vec3 pass_Normal;
 in vec3 pass_Position;
 in vec2 pass_textcoord;
 in vec3 toCameraVector;
+in vec3 gouroudColor;
 
 uniform sampler2D TextureSamplerUniform;
+
 uniform vec3 AmbientColorUniform;
 uniform vec3 DiffuseColorUniform;
 uniform vec3 SpecularColorUniform;
 uniform float SpecularExponentUniform;
+
 uniform Light LightsUniform[5];
+
 uniform bool PhongLightningUniform;
+uniform bool PhongShadingUniform;
 uniform bool HasTextureUniform;
 uniform bool DiscardUniform;
 
 out vec4 outputColor;
 
-void main()
+void Phong()
 {
 	vec4 color; 
 	if(HasTextureUniform==true)
@@ -107,4 +112,37 @@ void main()
 	}
 
 	outputColor=color*vec4((totalAmbient*AmbientColorUniform+totalDiffuse*DiffuseColorUniform+totalSpecular*SpecularColorUniform),1.0);
-}
+};
+
+void Gouraud()
+{
+	vec4 color; 
+	if(HasTextureUniform==true)
+	{
+		color=texture(TextureSamplerUniform,pass_textcoord);
+	}
+	else
+	{
+		color=vec4(1.0,1.0,1.0,1.0);
+	}
+
+	if(color.a < 0.5)
+	{
+		discard;
+	}
+
+	outputColor=color*vec4(gouroudColor, 1.0);
+};
+
+void main()
+{
+	if(PhongShadingUniform)
+	{
+		Phong();
+	}
+	else
+	{
+		Gouraud();
+	}
+};
+

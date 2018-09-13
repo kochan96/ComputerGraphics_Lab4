@@ -43,10 +43,10 @@ namespace Grafika_lab_4.SceneObjects
             Vector3[] vertices = new Vector3[(_total + 1) * (_total + 1)];
             for (int i = 0; i < _total + 1; i++)
             {
-                float lon = Extensions.MapValue(i, 0, _total, -MathHelper.Pi, MathHelper.Pi);
+                float lon = Extensions.MapValue(i, 0, _total - 1, -MathHelper.Pi, MathHelper.Pi);
                 for (int j = 0; j < _total + 1; j++)
                 {
-                    float lat = Extensions.MapValue(j, 0, _total, -MathHelper.PiOver2, MathHelper.PiOver2);
+                    float lat = Extensions.MapValue(j, 0, _total - 1, -MathHelper.PiOver2, MathHelper.PiOver2);
                     float x = (float)(Math.Sin(lon) * Math.Cos(lat));
                     float y = (float)(Math.Sin(lon) * Math.Sin(lat));
                     float z = (float)Math.Cos(lon);
@@ -123,7 +123,7 @@ namespace Grafika_lab_4.SceneObjects
         {
             time = time + deltatime;
             time = time % MathHelper.Pi;
-            float Y = InitalPosition.Y + 3*(float)Math.Sin(time);
+            float Y = InitalPosition.Y + 30 * (float)Math.Sin(15 * time);
             Vector3 nextPosition = new Vector3(InitalPosition.X, Y, InitalPosition.Z);
             Translate(nextPosition - Position);
         }
