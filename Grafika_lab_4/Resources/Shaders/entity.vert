@@ -101,15 +101,25 @@ void Gouraud()
 			totalDiffuse+=(LightsUniform[i].DiffuseIntensity*brightness*LightsUniform[i].Color)/attenuationFactor;
 		
 			//specular
+			vec3 lightDirection = -unitLightVector;
+			float dampedFactor = 1;
+
 			if(PhongLightningUniform)
 			{
-				vec3 lightDirection=-unitLightVector;
 				vec3 reflectedLightDirection=reflect(lightDirection,unitNormal);
 				float specularFactor=dot(reflectedLightDirection,unitCameraVector);
-				specularFactor=max(specularFactor,0.2f);
-				float dampedFactor=pow(specularFactor,SpecularExponentUniform);
-				totalSpecular+=(LightsUniform[i].SpecularIntensity*dampedFactor*LightsUniform[i].Color)/attenuationFactor;
+				dampedFactor=pow(specularFactor,SpecularExponentUniform);
 			}
+			else
+			{
+				// this is blinn phong
+				vec3 halfDir = normalize(lightDirection + unitCameraVector);
+				float specularFactor=dot(unitNormal,halfDir);
+				dampedFactor=pow(specularFactor,SpecularExponentUniform);
+			}
+
+			totalSpecular+=(LightsUniform[i].SpecularIntensity*dampedFactor*LightsUniform[i].Color)/attenuationFactor;
+
 
 			gouroudColor = totalAmbient * AmbientColorUniform+totalDiffuse * DiffuseColorUniform + totalSpecular * SpecularColorUniform;
 		}

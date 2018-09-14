@@ -94,12 +94,20 @@ void Phong()
 			totalDiffuse+=(LightsUniform[i].DiffuseIntensity*brightness*LightsUniform[i].Color)/attenuationFactor;
 		
 			//specular
+			vec3 lightDirection=-unitLightVector;
+
 			if(PhongLightningUniform)
 			{
-				vec3 lightDirection=-unitLightVector;
 				vec3 reflectedLightDirection=reflect(lightDirection,unitNormal);
 				float specularFactor=dot(reflectedLightDirection,unitCameraVector);
-				specularFactor=max(specularFactor,0.2f);
+				float dampedFactor=pow(specularFactor,SpecularExponentUniform);
+				totalSpecular+=(LightsUniform[i].SpecularIntensity*dampedFactor*LightsUniform[i].Color)/attenuationFactor;
+			}
+			else
+			{
+				// this is blinn phong
+				vec3 halfDir = normalize(lightDirection + unitCameraVector);
+				float specularFactor=dot(halfDir,unitNormal);
 				float dampedFactor=pow(specularFactor,SpecularExponentUniform);
 				totalSpecular+=(LightsUniform[i].SpecularIntensity*dampedFactor*LightsUniform[i].Color)/attenuationFactor;
 			}
