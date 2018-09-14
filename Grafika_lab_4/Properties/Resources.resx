@@ -117,4 +117,21 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="HelpMessage" xml:space="preserve">
+    <value>Usage:
+Normal:
+    W - speed up aircraft
+    S - slow down aircraft
+    C - change Camera
+    P - Change Shading Model
+    L - Change Lightning Model
+    G - Change Terrain Texture
+
+H - Control Aircraft
+Human Control:
+    The same as in normal mode and also:
+    E - Go up
+    Q - Go down
+</value>
+  </data>
 </root>

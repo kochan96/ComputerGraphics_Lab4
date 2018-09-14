@@ -123,7 +123,7 @@ namespace Grafika_lab_4.SceneObjects
         {
             time = time + deltatime;
             time = time % MathHelper.Pi;
-            float Y = InitalPosition.Y + 30 * (float)Math.Sin(15 * time);
+            float Y = InitalPosition.Y + 3 * (float)Math.Sin(time);
             Vector3 nextPosition = new Vector3(InitalPosition.X, Y, InitalPosition.Z);
             Translate(nextPosition - Position);
         }

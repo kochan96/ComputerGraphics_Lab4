@@ -67,7 +67,7 @@ namespace Grafika_lab_4
             ///Terain
             terrain = new Terrain(Resources.MountainsHeightMap)
             {
-                Texture = texture2,
+                Texture = texture1,
             };
             float TerrainLength = 300f;
             float TerrainHeight = 20f;
@@ -78,7 +78,7 @@ namespace Grafika_lab_4
 
             ///FirstAircraft
             aircraft = new Aircraft();
-            aircraft.Speed = 0.4f;
+            aircraft.Speed = 0.6f;
             aircraft.HumanControlSpeed = 20f;
             aircraft.ScaleObject(100f);
             aircraft.RotateByY(MathHelper.PiOver2);
@@ -89,14 +89,14 @@ namespace Grafika_lab_4
             aircraft.Translate(aircraft.Up * 8f);
             aircraft.EllipseY = aircraft.Position.Y;
 
-            Sphere sphere = new Sphere(10);
+            Sphere sphere = new Sphere(20);
             sphere.ScaleObject(5);
             sphere.Color = Vector3.UnitX;
             sphere.SpecularExponent = 10f;
             sphere.SetPosition(new Vector3(-50f, 8f, 50f));
             sphere.InitalPosition = sphere.Position;
 
-            Sphere sphere2 = new Sphere(10);
+            Sphere sphere2 = new Sphere(20);
             sphere2.ScaleObject(5);
             sphere2.Color = Vector3.UnitY;
             sphere2.SpecularExponent = 500f;
@@ -109,7 +109,7 @@ namespace Grafika_lab_4
             cube.ScaleObject(new Vector3(1.2f, 10f, 1.2f));
             cube.SetPosition(new Vector3(60f, 5f, 0f));
 
-            Sphere sphere3 = new Sphere(10);
+            Sphere sphere3 = new Sphere(20);
             sphere3.ScaleObject(5);
             sphere3.Color = Vector3.UnitY;
             sphere3.SpecularExponent = 1000f;
@@ -146,23 +146,29 @@ namespace Grafika_lab_4
             ///render last
             renderObjects.Add(skybox);
 
-            MovingCamera moveCamera = new MovingCamera()
+           /* MovingCamera moveCamera = new MovingCamera()
             {
                 CameraPosition = new Vector3(-2.2f, 45.8f, 90.39f),
                 MoveSpeed = 1.5f
-            };
+            };*/
+
             Camera staticCamera = new Camera()
             {
-                CameraPosition = new Vector3(-2.2f, 45.8f, -90.39f)
+                CameraPosition = new Vector3(30f, 51.8f, -71.13f)
             };
+
             Camera staticFollowCamera = new StaticFollowCamera(aircraft)
             {
                 CameraPosition = new Vector3(0f, 20f, 10f)
             };
-            Camera staticFollowCamera2 = new StaticFollowCamera(sphere)
+
+            Camera staticFollowCamera2 = new Camera()
             {
-                CameraPosition = new Vector3(0f, 10f, 10f)
+                CameraPosition = new Vector3(sphere.Position.X, sphere.Position.Y + 15f, sphere.Position.Z - 20),
             };
+
+            staticFollowCamera2.CameraTarget = sphere.Position;
+
             BehindCamera behindCamera = new BehindCamera(aircraft)
             {
                 Dist = 20f,
@@ -170,7 +176,8 @@ namespace Grafika_lab_4
             };
 
             //Cameras
-            cameras.Add(moveCamera);
+            //cameras.Add(moveCamera);
+
             cameras.Add(staticCamera);
             cameras.Add(staticFollowCamera);
             cameras.Add(staticFollowCamera2);
@@ -302,6 +309,11 @@ namespace Grafika_lab_4
             {
                 obj.Dispose();
             }
+        }
+
+        private void Help_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(Properties.Resources.HelpMessage);
         }
     }
 }

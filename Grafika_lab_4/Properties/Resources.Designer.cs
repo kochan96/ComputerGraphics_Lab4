@@ -59,5 +59,28 @@ namespace Grafika_lab_4.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usage:
+        ///Normal:
+        ///    W - speed up aircraft
+        ///    S - slow down aircraft
+        ///    C - change Camera
+        ///    P - Change Shading Model
+        ///    L - Change Lightning Model
+        ///    G - Change Terrain Texture
+        ///
+        ///H - Control Aircraft
+        ///Human Control:
+        ///    The same as in normal mode and also:
+        ///    E - Go up
+        ///    Q - Go down
+        ///.
+        /// </summary>
+        internal static string HelpMessage {
+            get {
+                return ResourceManager.GetString("HelpMessage", resourceCulture);
+            }
+        }
     }
 }
